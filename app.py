@@ -61,29 +61,43 @@ class SongRequest(db.Model):
 def sync_library():
     print("☁️ Syncing library directly from Cloudinary...")
     try:
+        # Fetch resources with resource_type="video" (Cloudinary stores audio here)
         response = cloudinary.api.resources(resource_type="video", max_results=500)
         resources = response.get('resources', [])
+        print(f"📦 Found {len(resources)} total resources in Cloudinary.")
         
         for res in resources:
-            public_id = res['public_id'] 
+            public_id = res.get('public_id') 
             if not public_id:
                 continue
 
+            print(f"Processing track: {public_id}")
+
+            # Extract folder name (e.g., 'bollywood/Tum_Hi_Ho' -> 'bollywood')
             parts = public_id.split('/')
             folder_name = parts[0] if len(parts) > 1 else "Root"
             
+            # 1. Handle Playlist (Folder)
             playlist = db.session.query(Playlist).filter_by(name=folder_name).first()
             if not playlist:
                 playlist = Playlist(name=folder_name, is_auto=True)
                 db.session.add(playlist)
                 db.session.commit()
                 
+            # 2. Handle Track
             track = db.session.query(Track).filter_by(filename=public_id).first()
             if not track:
-                track = Track(filename=public_id, plays=0, rating=0, bitrate="Cloud Stream", sample_rate="Auto")
+                track = Track(
+                    filename=public_id,
+                    plays=0, 
+                    rating=0, 
+                    bitrate="Cloud Stream", 
+                    sample_rate="Auto"
+                )
                 db.session.add(track)
                 db.session.commit()
                 
+            # 3. Link Track to Playlist
             if track not in playlist.tracks:
                 playlist.tracks.append(track)
                 db.session.commit()
@@ -91,7 +105,6 @@ def sync_library():
         print("✅ Cloudinary Sync complete!")
     except Exception as e:
         print(f"❌ Cloudinary sync failed: {e}")
-
 # Build DB and Sync before the app starts handling requests (Crucial for Gunicorn/Render)
 with app.app_context():
     db.create_all()
