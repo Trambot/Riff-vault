@@ -20,9 +20,9 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # --- CLOUDINARY CONFIGURATION ---
 # We use environment variables so your keys stay hidden and secure when deployed online
 cloudinary.config(
-    cloud_name = "pidbbt6x",
-    api_key = "731348556531242",
-    api_secret = "bbRzS1_lYyC_Cx_Crd4xRV-Cw1E",
+    cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key = os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret = os.environ.get("CLOUDINARY_API_SECRET"),
     secure = True
 )
 
