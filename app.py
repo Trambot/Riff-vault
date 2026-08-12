@@ -61,21 +61,18 @@ class SongRequest(db.Model):
     title = db.Column(db.String(200), nullable=False)
 
 def sync_library():
-    print("☁️ Forcing Cloudinary to reveal ALL files...")
+    print("☁️ Running classic Cloudinary sync...")
     try:
-        total_found = 0
-        # This searches your entire account for audio (video) OR raw files
-        result = cloudinary.search.expression("resource_type:video OR resource_type:raw").max_results(500).execute()
-        resources = result.get('resources', [])
-        
-        print(f"📦 Cloudinary Search found {len(resources)} total files!")
+        # The exact line that worked locally!
+        response = cloudinary.api.resources(resource_type="video", max_results=500)
+        resources = response.get('resources', [])
+        print(f"📦 Found {len(resources)} total resources in Cloudinary.")
         
         for res in resources:
             public_id = res.get('public_id') 
             if not public_id or 'cover' in public_id.lower():
                 continue
 
-            total_found += 1
             parts = public_id.split('/')
             folder_name = parts[0] if len(parts) > 1 else "Root"
             
@@ -104,7 +101,7 @@ def sync_library():
                 playlist.tracks.append(track)
                 db.session.commit()
                 
-        print(f"✅ Sync complete! Added {total_found} total tracks to database.")
+        print("✅ Cloudinary Sync complete!")
     except Exception as e:
         print(f"❌ Cloudinary sync failed: {e}")
 
