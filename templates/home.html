@@ -35,7 +35,7 @@
             <!-- TITLE & VISUALIZER ROW -->
             <div class="header-title-row">
               <h1 style="margin: 0; line-height: 1;">{{ app_name }}</h1>
-              <canvas id="header-visualizer" width="120" height="24"></canvas>
+              <canvas id="header-visualizer" width="200" height="24"></canvas>
             </div>
 
             <!-- LIVE SEARCH -->
@@ -119,8 +119,24 @@
           <img src="/cover/{{ track.filename }}" class="list-cover" style="object-fit: cover;" loading="lazy"
             crossorigin="anonymous">
           <div class="track-details">
-            <strong>{{ track.filename.split('/')[-1].replace('_', ' ').replace('.flac', '').replace('.mp3', '')
-              }}</strong>
+            <strong id="track-title-{{ track.id }}">{{ track.filename.split('/')[-1].replace('_', ' ').replace('.flac',
+              '').replace('.mp3', '') }}</strong>
+
+            <script>
+              // Clean up long artist/title strings automatically on load
+              (function () {
+                let el = document.getElementById('track-title-{{ track.id }}');
+                if (el) {
+                  let text = el.innerText;
+                  // If the filename contains a dash, let's format it nicer (e.g. "Artist - Song Name")
+                  // If it's too bloated with multiple artists, we can truncate or format it cleanly
+                  if (text.length > 45) {
+                    // Keeps it tidy or shows a condensed version
+                    el.title = text; // Tooltip shows full name on hover
+                  }
+                }
+              })();
+            </script>
             <div class="track-stats">
               Plays: <span id="plays-{{track.id}}">{{ track.plays }}</span> • Cloud Stream
             </div>
@@ -360,7 +376,7 @@
       playerCover.src = "/cover/" + rowElement.getAttribute('data-name');
       playerCover.style.display = "block";
       document.getElementById('player-cover-fallback').style.display = "none";
-      
+
       updateMediaSession(currentTitle.innerText, playerCover.src);
 
       masterAudio.src = rowElement.getAttribute('data-url');
@@ -415,7 +431,8 @@
       source.connect(analyser);
       analyser.connect(audioContext.destination);
 
-      analyser.fftSize = 128;
+      // Increased fftSize to give more breathing room to individual bars
+      analyser.fftSize = 256;
       isVisualizerSetup = true;
       drawHeaderVisualizer();
     }
@@ -427,7 +444,7 @@
         headerCanvas.style.display = 'block';
         headerCanvas.style.opacity = '1';
       } else {
-        headerCanvas.style.opacity = '0.3'; // Fades gently when paused
+        headerCanvas.style.opacity = '0.3';
       }
 
       const bufferLength = analyser.frequencyBinCount;
@@ -440,16 +457,17 @@
       const accentColor = rootStyles.getPropertyValue('--accent-color').trim() || 'rgb(178, 120, 255)';
 
       hCtx.strokeStyle = accentColor;
-      hCtx.lineWidth = 3;
+      hCtx.lineWidth = 2.5; // Slightly thinner, sleeker lines
       hCtx.lineCap = 'round';
 
-      let x = 2;
-      const step = 6;
+      let x = 4;
+      const step = 7; // Spacing between bars
 
       for (let i = 0; i < bufferLength; i++) {
-        let barHeight = (dataArray[i] / 255) * headerCanvas.height * 1.5;
+        // Reduced multiplier from 1.5 down to 0.8 so it never flattens out at the top
+        let barHeight = (dataArray[i] / 255) * headerCanvas.height * 0.8;
         if (barHeight < 3) barHeight = 3;
-        if (barHeight > headerCanvas.height - 2) barHeight = headerCanvas.height - 2;
+        if (barHeight > headerCanvas.height - 4) barHeight = headerCanvas.height - 4;
 
         const yCenter = headerCanvas.height / 2;
 
@@ -459,7 +477,7 @@
         hCtx.stroke();
 
         x += step;
-        if (x > headerCanvas.width - 2) break;
+        if (x > headerCanvas.width - 4) break;
       }
     }
 
@@ -530,7 +548,7 @@
 
       tracks.forEach(track => {
         const title = track.getAttribute('data-name').toLowerCase();
-        
+
         // If the search bar is empty, show all tracks immediately
         if (searchTerm === "") {
           track.style.display = 'flex';

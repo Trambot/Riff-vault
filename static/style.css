@@ -87,7 +87,15 @@ body {
 .track-left-side { display: flex; align-items: center; overflow: hidden; }
 .track-right-side { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .list-cover { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.05); border-radius: 6px; margin-right: 12px; flex-shrink: 0; }
-.track-details strong { font-size: 0.9rem; font-weight: 500; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+.track-details strong { 
+  font-size: 0.9rem; 
+  font-weight: 500; 
+  display: block; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  max-width: 400px; /* Limits the length so it doesn't overflow the row */
+}
 .track-stats { font-size: 0.72rem; color: rgba(255, 255, 255, 0.45); margin-top: 2px; }
 
 .add-to-pl-form { display: flex; gap: 5px; margin: 0; }
