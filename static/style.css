@@ -162,7 +162,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
     padding-left: 54px; /* Align with text */
     box-sizing: border-box; 
     gap: 8px; 
-    flex-wrap: wrap; /* Lets buttons drop to new line if screen is tiny */
+    flex-wrap: wrap; 
   }
   
   .mini-dropdown { max-width: 100px; padding: 6px 8px; font-size: 0.75rem; }
@@ -177,4 +177,32 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
   .player-center { width: 100%; }
   .playback-controls button { margin: 0 12px; }
   .player-right { display: none; }
+}
+
+/* LYRICS & SPOTIFY MODAL */
+#lyrics-modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px); z-index: 1999; display: none;
+}
+
+#lyrics-modal {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 90%; max-width: 500px; max-height: 80vh; z-index: 2000;
+  display: none; flex-direction: column; gap: 15px; padding: 20px;
+  border-radius: 16px; overflow-y: auto;
+}
+
+.spotify-btn {
+  background: #1DB954; color: white; border: none; font-weight: 600;
+  text-align: center; padding: 12px; border-radius: 8px; text-decoration: none;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 0.95rem; transition: background 0.2s;
+}
+
+.spotify-btn:hover { background: #1ed760; }
+
+#lyrics-content {
+  white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; color: #ddd;
+  margin-top: 10px; text-align: center; font-family: inherit;
 }

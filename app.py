@@ -14,13 +14,11 @@ from flask_limiter.util import get_remote_address
 app = Flask(__name__)
 
 # --- DATABASE CONFIGURATION ---
-# This forces the SQLite database to be created in the exact same folder as app.py
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASE_DIR, "riff_vault.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # --- CLOUDINARY CONFIGURATION ---
-# We use environment variables so your keys stay hidden and secure when deployed online
 cloudinary.config(
     cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME"),
     api_key = os.environ.get("CLOUDINARY_API_KEY"),
@@ -63,7 +61,6 @@ class SongRequest(db.Model):
 def sync_library():
     print("☁️ Running classic Cloudinary sync...")
     try:
-        # The exact line that worked locally!
         response = cloudinary.api.resources(resource_type="video", max_results=500)
         resources = response.get('resources', [])
         print(f"📦 Found {len(resources)} total resources in Cloudinary.")
@@ -140,7 +137,7 @@ def upload_track():
     if file.filename != '':
         try:
             cloudinary.uploader.upload(file, resource_type="video", folder=folder_name, use_filename=True, unique_filename=False)
-            sync_library() # Re-sync to grab the new song immediately
+            sync_library() 
         except Exception as e:
             print(f"Upload failed: {e}")
             
@@ -174,12 +171,20 @@ def add_to_playlist():
 
 @app.route("/remove_from_playlist", methods=["POST"])
 def remove_from_playlist():
-    track_id, playlist_id = request.form.get("track_id"), request.form.get("playlist_id")
+    track_id = request.form.get("track_id")
+    playlist_id = request.form.get("playlist_id")
+    
     if track_id and playlist_id:
-        track, playlist = db.session.get(Track, track_id), db.session.get(Playlist, playlist_id)
-        if track and playlist and not playlist.is_auto and track in playlist.tracks:
-            playlist.tracks.remove(track)
-            db.session.commit()
+        try:
+            track = db.session.get(Track, int(track_id))
+            playlist = db.session.get(Playlist, int(playlist_id))
+            
+            if track and playlist and track in playlist.tracks:
+                playlist.tracks.remove(track)
+                db.session.commit()
+        except ValueError:
+            pass 
+            
     return redirect(request.referrer or url_for("home"))
 
 @app.route("/request_song", methods=["POST"])
@@ -217,7 +222,6 @@ def stream_audio(filename):
 @app.route("/cover/<path:filename>")
 @limiter.exempt
 def get_cover(filename):
-    # Auto-fetch high-res cover art from iTunes! No manual uploads needed.
     clean_title = urllib.parse.unquote(filename).split('/')[-1]
     clean_title = clean_title.replace('_', ' ').replace('.flac', '').replace('.mp3', '')
     
