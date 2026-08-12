@@ -636,8 +636,9 @@
     }
 
     function closeLyrics() {
-      document.getElementById('lyrics-modal').style.display = 'none';
-      document.getElementById('lyrics-modal-overlay').style.display = 'none';
+      // Remove the active class to slide it back down
+      document.getElementById('lyrics-modal').classList.remove('active');
+      document.getElementById('lyrics-modal-overlay').classList.remove('active');
     }
 
     function showLyrics() {
@@ -646,7 +647,10 @@
       const overlay = document.getElementById('lyrics-modal-overlay');
       const spotifyLink = document.getElementById('spotify-link');
 
-      modal.style.display = 'flex'; overlay.style.display = 'block';
+      // Add the active class to trigger the slide-up animation
+      modal.classList.add('active'); 
+      overlay.classList.add('active');
+      
       let rawTitle = currentTitle.innerText;
       spotifyLink.href = `https://open.spotify.com/search/${encodeURIComponent(rawTitle)}/tracks`;
     }

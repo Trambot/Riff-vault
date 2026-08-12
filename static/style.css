@@ -225,4 +225,118 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
   .track-row { flex-direction: column; align-items: flex-start; gap: 12px; }
   .track-left-side { width: 100%; }
   .track-right-side { width: 100%; justify-content: flex-end; padding-left: 0; }
+
+}
+/* --- PREMIUM MOBILE LYRICS POPUP (BOTTOM SHEET) --- */
+@media (max-width: 768px) {
+  body { display: block; overflow: auto; height: auto; background-attachment: scroll; }
+  
+  /* 1. Sleeker Top Header */
+  .sticky-header-wrapper { 
+    position: sticky; top: 0; margin: 0; padding: 12px 15px; border-bottom: none; z-index: 100;
+    background: linear-gradient(to bottom, rgba(11,12,16,0.95) 75%, rgba(11,12,16,0));
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
+  }
+  .header-flex { margin-bottom: 12px !important; }
+  .header-brand-group h1 { font-size: 1.4rem !important; }
+  .top-bar-left { width: 100%; padding: 0; margin-bottom: 12px; justify-content: flex-start; overflow: visible; }
+  .top-bar-right { width: 100%; padding: 0; }
+  #header-visualizer { width: 70px !important; height: 16px; margin-top: 2px; }
+  
+  .app-layout { display: block; height: auto; overflow: visible; }
+  .app-sidebar { 
+    position: fixed; top: 0; left: 0; width: 280px !important; height: 100vh; 
+    z-index: 3000; background: rgba(14, 14, 20, 0.95); transform: translateX(-100%); transition: transform 0.3s ease; 
+  }
+  .app-sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.8); }
+  
+  .main-content-area { padding: 0 12px 100px 12px; height: auto; overflow: visible; }
+  .center-column { max-width: 100%; }
+
+  /* 2. Premium Horizontal Track Rows */
+  .track-row { 
+    flex-direction: row; /* Keeps elements side-by-side */
+    align-items: center; 
+    padding: 8px 10px; 
+    gap: 10px; 
+  }
+  .track-left-side { width: auto; flex-grow: 1; }
+  .list-cover { width: 38px; height: 38px; margin-right: 10px; border-radius: 6px; }
+  .track-details strong { font-size: 0.85rem; max-width: 190px; }
+  .track-stats { font-size: 0.65rem; }
+  .track-right-side { width: auto; justify-content: flex-end; padding-left: 0; }
+  
+  .mobile-close-wrapper { display: flex !important; }
+
+  /* 3. Compact Native-App Mini Player */
+  #premium-player { 
+    margin: 0; 
+    height: 64px; /* Fixes the massive height */
+    flex-direction: row; /* Aligns horizontally */
+    padding: 0 15px; 
+    gap: 12px; 
+    left: 10px; right: 10px; bottom: 12px;
+    border-radius: 12px;
+  }
+  .player-left { width: auto; flex-grow: 1; justify-content: flex-start; text-align: left; }
+  .album-art { width: 40px; height: 40px; margin-right: 12px; border-radius: 6px; }
+  #current-title { font-size: 0.85rem; max-width: 160px; }
+  #current-artist { font-size: 0.65rem; }
+  
+  .player-center { width: auto; }
+  .playback-controls { 
+    width: auto; 
+    display: flex; 
+    justify-content: flex-end; 
+    margin-bottom: 0; 
+    gap: 16px; /* Spacing between play/next/lyrics */
+  }
+  .playback-controls button { margin: 0; padding: 0; }
+  #play-pause-btn { font-size: 22px; }
+  
+  /* Hide non-essential buttons to keep it clean */
+  #shuffle-btn, #prev-btn { display: none; } 
+  #lyrics-btn { margin-left: 4px; }
+  
+  /* Place a sleek progress line seamlessly at the bottom edge of the player */
+  .progress-container { 
+    position: absolute; 
+    bottom: 0; left: 16px; right: 16px; 
+    width: auto; max-width: none; 
+    margin: 0; 
+  }
+  .progress-container span { display: none; } /* Hide timestamps on mobile */
+  input[type=range] { margin: 0; height: 2px; }
+  input[type=range]::-webkit-slider-thumb { width: 0; height: 0; } /* Hide the dot for a minimalist line */
+  
+  .player-right { display: none; }
+  
+  body.sidebar-collapsed .top-title-text { display: block; }
+  .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1500; display: none; }
+  .sidebar-backdrop.active { display: block; }
+}
+  
+  #lyrics-modal.active {
+    bottom: 0; /* Slides up! */
+  }
+
+  #lyrics-modal-overlay {
+    display: block !important;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 3999;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  
+  #lyrics-modal-overlay.active {
+    opacity: 1; pointer-events: auto;
+  }
+}
+
+/* Ensure the mobile popup NEVER shows on desktop */
+@media (min-width: 769px) {
+  #lyrics-modal, #lyrics-modal-overlay { 
+    display: none !important; 
+  }
 }
