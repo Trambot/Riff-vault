@@ -67,7 +67,7 @@ def sync_library():
         
         for folder in folders_to_check:
             # If folder is specified, use the prefix parameter to look inside it
-            options = {"resource_type": "video", "max_results": 500}
+            options = {"resource_type": "video", "type": "upload", "max_results": 500}
             if folder:
                 options["prefix"] = f"{folder}/"
                 
@@ -112,7 +112,6 @@ def sync_library():
         print(f"✅ Sync complete! Added {total_found} total tracks to database.")
     except Exception as e:
         print(f"❌ Cloudinary sync failed: {e}")
-    sync_library()
 
 # --- ROUTES ---
 @app.route("/")
