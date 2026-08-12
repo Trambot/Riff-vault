@@ -128,18 +128,38 @@ def home():
 
 @app.route("/upload", methods=["POST"])
 def upload_track():
-    if 'audio_file' not in request.files:
+    # Check if files were sent in the request
+    if 'audio_files' not in request.files:
         return redirect(url_for('home'))
         
-    file = request.files['audio_file']
-    folder_name = request.form.get('folder_name', 'Root').strip() or 'Root'
+    files = request.files.getlist('audio_files')
+    custom_folder = request.form.get('folder_name', '').strip()
     
-    if file.filename != '':
-        try:
-            cloudinary.uploader.upload(file, resource_type="video", folder=folder_name, use_filename=True, unique_filename=False)
-            sync_library() 
-        except Exception as e:
-            print(f"Upload failed: {e}")
+    uploaded_count = 0
+    for file in files:
+        if file.filename != '':
+            try:
+                # If a folder name was explicitly typed, use it. 
+                # Otherwise, if uploading a directory, parse its parent folder name automatically.
+                target_folder = custom_folder
+                if not target_folder and '/' in file.filename:
+                    target_folder = file.filename.split('/')[0]
+                elif not target_folder:
+                    target_folder = 'Root'
+
+                cloudinary.uploader.upload(
+                    file, 
+                    resource_type="video", 
+                    folder=target_folder, 
+                    use_filename=True, 
+                    unique_filename=False
+                )
+                uploaded_count += 1
+            except Exception as e:
+                print(f"Upload failed for {file.filename}: {e}")
+                
+    if uploaded_count > 0:
+        sync_library() # Re-sync once after the batch upload finishes
             
     return redirect(url_for("home"))
 
