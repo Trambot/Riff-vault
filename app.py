@@ -12,9 +12,11 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
-# Uses a local SQLite DB. Note: On free hosting, play counts reset if the server sleeps, 
-# but the songs are permanently safe in Cloudinary.
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///riff_vault.db"
+
+# --- DATABASE CONFIGURATION ---
+# This forces the SQLite database to be created in the exact same folder as app.py
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASE_DIR, "riff_vault.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # --- CLOUDINARY CONFIGURATION ---
@@ -58,10 +60,6 @@ class SongRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
 
-# --- INITIALIZE DATABASE TABLES ---
-with app.app_context():
-    db.create_all()
-
 def sync_library():
     print("☁️ Syncing library across folders...")
     try:
@@ -71,7 +69,7 @@ def sync_library():
         
         for folder in folders_to_check:
             # If folder is specified, use the prefix parameter to look inside it
-            options = {"resource_type": "video", "type": "upload", "max_results": 500}
+            options = {"resource_type": "video", "max_results": 500}
             if folder:
                 options["prefix"] = f"{folder}/"
                 
@@ -116,6 +114,11 @@ def sync_library():
         print(f"✅ Sync complete! Added {total_found} total tracks to database.")
     except Exception as e:
         print(f"❌ Cloudinary sync failed: {e}")
+
+# Build DB and Sync before the app starts handling requests (Crucial for Gunicorn/Render)
+with app.app_context():
+    db.create_all()
+    sync_library()
 
 # --- ROUTES ---
 @app.route("/")
