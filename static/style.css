@@ -1,7 +1,7 @@
 :root {
   --accent-color: rgb(178, 120, 255);
   --sidebar-width: 260px;
-  --right-panel-width: 320px; /* Width of the Lyrics/Image Panel */
+  --right-panel-width: 320px;
 }
 
 body.sidebar-collapsed {
@@ -13,7 +13,7 @@ body {
   background-image: url('my_bg.jpg'); 
   background-size: cover; background-position: center; background-attachment: fixed; 
   background-color: #0b0c10; color: #f0f0f0; font-family: 'Plus Jakarta Sans', sans-serif; 
-  height: 100vh; overflow: hidden; /* Locks body, allows only inner columns to scroll */
+  height: 100vh; overflow: hidden;
   display: flex; flex-direction: column;
 }
 
@@ -27,7 +27,6 @@ body {
   z-index: -2; pointer-events: none; transition: background 0.8s ease;
 }
 
-/* PREMIUM CLEAR GLASS PANELS (Kept exactly as you liked it) */
 .glass-panel, .glass-btn, .glass-input {
   background: rgba(20, 20, 26, 0.45); 
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);  
@@ -48,37 +47,19 @@ body {
 .small-input { padding: 5px 8px; font-size: 0.75rem; width: 110px; } 
 .small-btn { padding: 5px 10px; font-size: 0.75rem; }
 
-/* --------------------------------------
-   GLOBAL TOP BAR
---------------------------------------- */
-.global-top-bar {
-  flex-shrink: 0; height: 74px; display: flex; align-items: center;
-  background: rgba(14, 14, 20, 0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08); z-index: 2000;
-  border-top: none; border-left: none; border-right: none; border-radius: 0;
+.sticky-header-wrapper {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(11, 12, 16, 0.85); 
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  margin: 0 -30px 20px -30px; 
+  padding: 20px 30px 15px 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.top-bar-left {
-  width: var(--sidebar-width); height: 100%; display: flex; align-items: center;
-  padding: 0 20px; box-sizing: border-box; gap: 12px; transition: width 0.3s ease; overflow: hidden;
-}
-.top-bar-right {
-  flex-grow: 1; display: flex; justify-content: center; padding: 0 30px; box-sizing: border-box;
-}
-
-body.sidebar-collapsed .top-title-text { display: none; }
-body.sidebar-collapsed #header-visualizer { width: 40px !important; }
-.menu-toggle-btn { background: transparent; border: none; color: white; padding: 0; cursor: pointer; outline: none; display: flex; align-items: center; }
-.menu-toggle-btn:hover { opacity: 0.8; }
-
-/* --------------------------------------
-   3-COLUMN LAYOUT (Sidebar + Tracks + Lyrics)
---------------------------------------- */
 .app-layout {
-  flex-grow: 1; display: flex; height: calc(100vh - 74px); overflow: hidden;
+  flex-grow: 1; display: flex; height: 100vh; overflow: hidden;
 }
 
-/* 1. LEFT SIDEBAR */
 .app-sidebar {
   width: var(--sidebar-width); flex-shrink: 0; padding: 20px; box-sizing: border-box;
   display: flex; flex-direction: column; gap: 20px;
@@ -96,13 +77,11 @@ body.sidebar-collapsed .sync-btn { padding: 8px; justify-content: center; width:
 body.sidebar-collapsed .playlist-pill { font-size: 0.7rem; padding: 10px 4px; text-align: center; flex-direction: column; gap: 6px; }
 body.sidebar-collapsed .delete-btn { display: none; }
 
-/* 2. MIDDLE COLUMN (Tracks) */
 .main-content-area {
-  flex-grow: 1; padding: 20px 30px; padding-bottom: 160px; box-sizing: border-box; height: 100%; overflow-y: auto;
+  flex-grow: 1; padding: 0 30px; padding-bottom: 160px; box-sizing: border-box; height: 100%; overflow-y: auto;
 }
 .center-column { max-width: 900px; margin: 0 auto; width: 100%; }
 
-/* 3. RIGHT PANEL (Lyrics & Image) */
 .right-panel {
   width: var(--right-panel-width); flex-shrink: 0; padding: 20px; box-sizing: border-box;
   display: flex; flex-direction: column;
@@ -119,28 +98,25 @@ body.sidebar-collapsed .delete-btn { display: none; }
   width: 100%; aspect-ratio: 1/1; border-radius: 12px; display: flex; justify-content: center; align-items: center;
   background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); flex-shrink: 0;
 }
-.right-panel-close { display: none; } /* Hidden on desktop */
+.right-panel-close { display: none; } 
 #lyrics-content::-webkit-scrollbar { width: 4px; }
 #lyrics-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
 
-/* --- DYNAMICALLY CENTERED PLAYER --- */
 .player-wrapper {
   position: fixed; bottom: 16px; 
-  left: var(--sidebar-width); /* Anchors to right edge of sidebar */
-  right: var(--right-panel-width); /* Anchors to left edge of right panel */
+  left: var(--sidebar-width); 
+  right: var(--right-panel-width); 
   display: flex; justify-content: center; pointer-events: none; z-index: 1000; 
   transition: left 0.3s ease, right 0.3s ease;
 }
 
 #premium-player {
-  position: relative; width: 100%; max-width: 900px; margin: 0 20px; height: 76px;
+  position: fixed; bottom: 16px; left: calc(var(--sidebar-width) + 20px); right: calc(var(--right-panel-width) + 20px);
+  max-width: 900px; margin: 0 auto; height: 76px;
   pointer-events: auto; display: flex; justify-content: space-between; align-items: center;
-  background: rgba(20, 20, 26, 0.65); border-radius: 16px; padding: 0 20px; box-sizing: border-box;
+  background: rgba(20, 20, 26, 0.65); border-radius: 16px; padding: 0 20px; box-sizing: border-box; z-index: 1000;
 }
 
-/* --------------------------------------
-   INNER ELEMENTS & COMPONENTS
---------------------------------------- */
 .playlist-pills { display: flex; flex-direction: column; gap: 6px; }
 .playlist-group { display: flex; align-items: center; border-radius: 8px; overflow: hidden; }
 .playlist-pill { padding: 8px 12px; color: #ccc; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: background 0.2s, color 0.2s; border-radius: 8px; }
@@ -194,15 +170,11 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* -------------------------------------------
-   TABLET & MOBILE ADAPTATION (Right Panel turns into a Modal)
-------------------------------------------- */
 #lyrics-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 1999; display: none; }
 
 @media (max-width: 1024px) {
-  :root { --right-panel-width: 0px; } /* Gives space back to player */
+  :root { --right-panel-width: 0px; } 
   
-  /* Right panel becomes floating modal! */
   .right-panel {
     position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
     width: 90%; max-width: 420px; height: auto; max-height: 85vh; border-radius: 16px;
@@ -212,17 +184,19 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
   }
   .right-panel.modal-active { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
   .right-panel-close { display: block; }
+  #premium-player { left: 10px; right: 10px; width: auto; max-width: none; }
 }
 
 @media (max-width: 768px) {
   body { display: block; overflow: auto; height: auto; background-attachment: scroll; }
   
-  .global-top-bar { 
-    height: auto; flex-direction: column; padding: 15px; align-items: stretch;
-    position: sticky; top: 0;
+  .sticky-header-wrapper { 
+    position: sticky; top: 0; margin: 0; padding: 15px; border-bottom: none; z-index: 100;
     background: linear-gradient(to bottom, rgba(11,12,16,0.95) 70%, rgba(11,12,16,0));
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: none;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
   }
+
+  .header-flex { margin-bottom: 12px !important; }
   .top-bar-left { width: 100%; padding: 0; margin-bottom: 12px; justify-content: flex-start; overflow: visible; }
   .top-bar-right { width: 100%; padding: 0; }
   #header-visualizer { width: 90px !important; }
@@ -237,8 +211,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
   .main-content-area { padding: 0 15px 160px 15px; height: auto; overflow: visible; }
   .center-column { max-width: 100%; }
 
-  .player-wrapper { left: 0; bottom: 10px; z-index: 2000; right: 0; }
-  #premium-player { margin: 0 10px; height: auto; flex-direction: column; padding: 15px; gap: 12px; }
+  #premium-player { margin: 0; height: auto; flex-direction: column; padding: 15px; gap: 12px; left: 10px; right: 10px; width: auto; }
   .player-left { width: 100%; justify-content: center; text-align: center; }
   .player-center { width: 100%; }
   .playback-controls { width: 100%; display: flex; justify-content: space-around; margin-bottom: 8px; }
