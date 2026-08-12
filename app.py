@@ -116,7 +116,14 @@ with app.app_context():
 
 # --- ROUTES ---
 @app.route("/")
+@app.route("/")
 def home():
+    # Force a live background sync on every page load so Render never falls out of sync
+    try:
+        sync_library()
+    except Exception:
+        pass
+
     all_playlists = db.session.query(Playlist).all()
     song_requests = db.session.query(SongRequest).all()
     search_query = request.args.get("q")
