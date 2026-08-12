@@ -58,6 +58,10 @@ class SongRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
 
+# --- INITIALIZE DATABASE TABLES ---
+with app.app_context():
+    db.create_all()
+
 def sync_library():
     print("☁️ Syncing library across folders...")
     try:
