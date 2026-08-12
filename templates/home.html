@@ -46,7 +46,13 @@
       </div>
 
       <div class="playlist-pills" style="margin-top: 10px;">
-        <h3 class="section-title" style="margin-top:0;">Library</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top:0; margin-bottom: 12px;">
+  <h3 class="section-title" style="margin: 0;">Library</h3>
+  <button onclick="triggerCloudSync(this)" class="glass-btn small-btn" style="padding: 4px 8px; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;" title="Sync Cloudinary">
+    <svg id="sync-spinner" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-10.02l5.25 5.25"/></svg>
+    Sync
+  </button>
+</div>
 
         <!-- ALL TRACKS -->
         <a href="#" class="playlist-pill active" onclick="loadPlaylistView('all', 'All Vault Tracks', this)"
@@ -94,96 +100,95 @@
     <main class="main-content-area">
       <div class="sticky-header-wrapper">
         <header class="app-header">
-          <!-- Top Row: Menu Button, Original Logo, and Visualizer -->
-          <div class="header-title-row" style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; width: 100%; flex-wrap: wrap;">
+          <!-- Top Row: Clean Menu & Title + Visualizer (All aligned Left) -->
+          <div class="header-flex" style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; width: 100%;">
             
-            <!-- Mobile Menu Toggle (Now with text so users know to click it) -->
-            <button class="mobile-sidebar-toggle" onclick="toggleSidebar()" style="display: flex; align-items: center; gap: 6px;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- Mobile Menu Toggle (Borderless & Clean) -->
+            <button class="mobile-sidebar-toggle" onclick="toggleSidebar()">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>
               </svg>
-              <span class="mobile-menu-text" style="font-size: 0.9rem; font-weight: 600;">Library</span>
             </button>
             
-            <!-- Restored Original Main Title -->
-            <h1 style="margin: 0; font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px;">{{ app_name }}</h1>
-            
-            <!-- Restored Visualizer Position (Right next to the title) -->
-            <canvas id="header-visualizer" width="150" height="24" style="margin-top: 4px;"></canvas>
+            <!-- App Title & Visualizer Group -->
+            <div class="header-brand-group" style="display: flex; align-items: center; gap: 12px;">
+              <h1 style="margin: 0; font-size: 1.7rem; font-weight: 700; letter-spacing: -0.5px;">{{ app_name }}</h1>
+              <canvas id="header-visualizer" width="120" height="20" style="margin-top: 4px;"></canvas>
+            </div>
           </div>
 
-          <!-- Bottom Row: Search Bar -->
+          <!-- Bottom Row: Sleek Search Bar -->
           <div class="search-form" style="position:relative; width: 100%;">
             <div class="search-input-wrapper" style="position:relative; display:flex; align-items:center;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                style="position:absolute; left:12px; opacity:0.6;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                style="position:absolute; left:14px; opacity:0.5;">
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
+              <!-- Notice the inline styles here removing the border to match Spotify's pill search -->
               <input type="text" id="live-search" placeholder="Search tracks instantly..." class="glass-input"
-                style="padding-left:34px; width:100%; box-sizing: border-box;">
+                style="padding-left:38px; width:100%; box-sizing: border-box; border: none; background: rgba(255,255,255,0.08); height: 42px; border-radius: 20px;">
             </div>
-            <!-- Dropdown results container -->
             <div id="search-results-dropdown" class="search-results-dropdown"></div>
           </div>
         </header>
-      </div>
-      <!-- ACTIVE PLAYLIST / VAULT TRACKS -->
-      <h3 id="current-view-title" class="section-title">All Vault Tracks</h3>
+        <!-- ACTIVE PLAYLIST / VAULT TRACKS -->
+        <h3 id="current-view-title" class="section-title">All Vault Tracks</h3>
 
-      <div class="vertical-track-list" id="primary-track-list">
-        {% for track in tracks %}
-        <!-- DATA-PLAYLISTS injected so JS knows what to hide/show seamlessly -->
-        <div class="track-item track-row glass-panel" data-url="/stream/{{ track.filename }}"
-          data-name="{{ track.filename }}" data-id="{{ track.id }}"
-          data-playlists="{{ track.playlists | map(attribute='id') | list | tojson if track.playlists else '[]' }}"
-          onclick="playFromButton(this)">
+        <div class="vertical-track-list" id="primary-track-list">
+          {% for track in tracks %}
+          <!-- DATA-PLAYLISTS injected so JS knows what to hide/show seamlessly -->
+          <div class="track-item track-row glass-panel" data-url="/stream/{{ track.filename }}"
+            data-name="{{ track.filename }}" data-id="{{ track.id }}"
+            data-playlists="{{ track.playlists | map(attribute='id') | list | tojson if track.playlists else '[]' }}"
+            onclick="playFromButton(this)">
 
-          <div class="track-left-side">
-            <img src="/cover/{{ track.filename }}" class="list-cover" style="object-fit: cover;" loading="lazy"
-              crossorigin="anonymous">
-            <div class="track-details">
-              <strong id="track-title-{{ track.id }}">{{ track.filename.split('/')[-1].replace('_', '
-                ').replace('.flac', '').replace('.mp3', '') }}</strong>
-              <script>
-                (function () {
-                  let el = document.getElementById('track-title-{{ track.id }}');
-                  if (el) {
-                    let text = el.innerText.trim();
-                    if (text.includes(' - ')) {
-                      let parts = text.split(' - ');
-                      let artists = parts[0].trim();
-                      let songName = parts.slice(1).join(' - ').trim();
-                      el.innerHTML = `${songName} <span style="font-size: 0.75rem; opacity: 0.5; font-weight: 400;">(${artists})</span>`;
-                      el.title = text;
+            <div class="track-left-side">
+              <img src="/cover/{{ track.filename }}" class="list-cover" style="object-fit: cover;" loading="lazy"
+                crossorigin="anonymous">
+              <div class="track-details">
+                <strong id="track-title-{{ track.id }}">{{ track.filename.split('/')[-1].replace('_', '
+                  ').replace('.flac', '').replace('.mp3', '') }}</strong>
+                <script>
+                  (function () {
+                    let el = document.getElementById('track-title-{{ track.id }}');
+                    if (el) {
+                      let text = el.innerText.trim();
+                      if (text.includes(' - ')) {
+                        let parts = text.split(' - ');
+                        let artists = parts[0].trim();
+                        let songName = parts.slice(1).join(' - ').trim();
+                        el.innerHTML = `${songName} <span style="font-size: 0.75rem; opacity: 0.5; font-weight: 400;">(${artists})</span>`;
+                        el.title = text;
+                      }
                     }
-                  }
-                })();
-              </script>
-              <div class="track-stats">Plays: <span id="plays-{{track.id}}">{{ track.plays }}</span> • Cloud Stream
+                  })();
+                </script>
+                <div class="track-stats">Plays: <span id="plays-{{track.id}}">{{ track.plays }}</span> • Cloud Stream
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Buttons injected by JS dynamically based on active view -->
-          <div class="track-right-side dynamic-buttons" onclick="event.stopPropagation();">
-            <button type="button" class="glass-btn small-btn mini-btn" onclick="addToQueue(this, event)">Queue</button>
+            <!-- Buttons injected by JS dynamically based on active view -->
+            <div class="track-right-side dynamic-buttons" onclick="event.stopPropagation();">
+              <button type="button" class="glass-btn small-btn mini-btn"
+                onclick="addToQueue(this, event)">Queue</button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- ADD MISSING TRACKS SECTION (Only visible when inside a specific playlist) -->
+        <div id="missing-tracks-section" style="display: none;">
+          <h3 class="section-title" style="margin-top: 30px; opacity: 0.7;">Add Missing Tracks</h3>
+          <div class="vertical-track-list" id="missing-track-list" style="opacity: 0.85;">
+            <!-- JS clones un-added tracks here automatically -->
           </div>
         </div>
-        {% endfor %}
-      </div>
 
-      <!-- ADD MISSING TRACKS SECTION (Only visible when inside a specific playlist) -->
-      <div id="missing-tracks-section" style="display: none;">
-        <h3 class="section-title" style="margin-top: 30px; opacity: 0.7;">Add Missing Tracks</h3>
-        <div class="vertical-track-list" id="missing-track-list" style="opacity: 0.85;">
-          <!-- JS clones un-added tracks here automatically -->
-        </div>
-      </div>
-
-      <div style="height: 140px;"></div>
+        <div style="height: 140px;"></div>
     </main>
   </div>
 
@@ -628,6 +633,30 @@
     masterAudio.addEventListener('pause', () => {
       if (masterAudio.currentTime < masterAudio.duration && !masterAudio.ended) { }
     });
+    function triggerCloudSync(btnElement) {
+      const spinner = document.getElementById('sync-spinner');
+      const originalText = btnElement.innerHTML;
+      
+      // Make it spin and change text
+      spinner.style.animation = "spin 1s linear infinite";
+      btnElement.innerHTML = spinner.outerHTML + " Syncing...";
+      btnElement.style.pointerEvents = "none";
+
+      fetch('/sync_ajax', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            btnElement.innerHTML = "Synced!";
+            btnElement.style.borderColor = "var(--accent-color)";
+            setTimeout(() => location.reload(), 1000); // Quick refresh to load the new tracks
+          } else {
+            btnElement.innerHTML = "Failed";
+          }
+        })
+        .catch(() => {
+          btnElement.innerHTML = "Error";
+        });
+    }
   </script>
 </body>
 

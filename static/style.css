@@ -148,22 +148,17 @@ input[type=range] { -webkit-appearance: none; background: rgba(255, 255, 255, 0.
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: white; border-radius: 50%; }
 #volume-bar { width: 60px; margin-left: 6px; }
 
-/* BASE MOBILE SIDEBAR TOGGLE BUTTON */
+/* BASE MOBILE SIDEBAR TOGGLE BUTTON (CLEAN & BORDERLESS) */
 .mobile-sidebar-toggle { 
   display: none; 
   background: transparent; 
-  border: 1px solid rgba(255,255,255,0.12); 
+  border: none; 
   color: white; 
-  padding: 8px; 
-  border-radius: 8px; 
+  padding: 0; 
   cursor: pointer; 
-  align-items: center; 
-  justify-content: center; 
-  transition: background 0.2s;
+  outline: none;
 }
-.mobile-sidebar-toggle:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
+.header-brand-group { margin-left: 0; }
 
 /* -------------------------------------------
    CRITICAL MOBILE OVERRIDES (FIXES THE MANGLED UI)
@@ -171,8 +166,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
 @media (max-width: 768px) {
   body { background-attachment: scroll; } /* Stops iOS Safari white screen crash */
   .app-layout { flex-direction: column; display: block; }
-  .mobile-menu-text { display: inline-block; }
-  .mobile-sidebar-toggle { display: inline-flex; margin-right: 10px; }
   
   /* Force Sidebar to float OVER the screen, not push it */
   .app-sidebar { 
@@ -184,7 +177,11 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
   /* Reset Main Content so it doesn't squish */
   .main-content-area { max-width: 100%; width: 100%; padding: 15px; padding-bottom: 160px; }
   .sticky-header-wrapper { margin: -15px -15px 15px -15px; padding: 15px; }
-  .mobile-sidebar-toggle { display: flex; margin-right: auto; }
+  
+  /* Clean Header Layout */
+  .mobile-sidebar-toggle { display: block; }
+  .header-brand-group { margin-left: 0; justify-content: flex-start; }
+  #header-visualizer { width: 90px !important; }
   
   .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1500; display: none; }
   .sidebar-backdrop.active { display: block; }
@@ -205,10 +202,8 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
   .playback-controls { width: 100%; display: flex; justify-content: space-around; margin-bottom: 8px; }
   .playback-controls button { margin: 0; }
   .player-right { display: none; }
-
-  .mobile-menu-text { display: none; }
 }
-
+@keyframes spin { 100% { transform: rotate(360deg); } }
 /* LYRICS & SPOTIFY MODAL */
 #lyrics-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 1999; display: none; }
 #lyrics-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; max-height: 80vh; z-index: 2000; display: none; flex-direction: column; gap: 15px; padding: 20px; border-radius: 16px; overflow-y: auto; }
