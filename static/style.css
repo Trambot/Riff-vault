@@ -135,22 +135,20 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
 #volume-bar { width: 60px; margin-left: 6px; }
 
 /* MOBILE RESPONSIVE DESIGN */
-.mobile-sidebar-toggle { display: none; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; align-items: center; gap: 6px; font-size: 0.85rem; }
-@media (max-width: 768px) {
-  .app-layout { flex-direction: column; }
-  .app-sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; transform: translateX(-100%); z-index: 2000; }
-  .app-sidebar.open { transform: translateX(0); }
-  .main-content-area { max-width: 100%; padding: 15px; padding-bottom: 120px; }
-  .sticky-header-wrapper { margin: -15px -15px 15px -15px; padding: 15px; }
-  .mobile-sidebar-toggle { display: flex; }
-  .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1500; display: none; }
-  .sidebar-backdrop.active { display: block; }
-  .track-row { flex-wrap: wrap; padding: 10px; gap: 6px; }
-  .track-left-side { width: 100%; }
-  .track-right-side { width: 100%; justify-content: flex-start; padding-left: 54px; box-sizing: border-box; }
-  #premium-player { bottom: 10px; width: calc(100% - 20px); height: auto; padding: 10px 15px; flex-direction: column; gap: 8px; border-radius: 16px; }
-  .player-left, .player-center { width: 100%; }
-  .player-right { display: none; }
+.mobile-sidebar-toggle { 
+  display: none; 
+  background: transparent; 
+  border: 1px solid rgba(255,255,255,0.12); 
+  color: white; 
+  padding: 8px; 
+  border-radius: 8px; 
+  cursor: pointer; 
+  align-items: center; 
+  justify-content: center; 
+  transition: background 0.2s;
+}
+.mobile-sidebar-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* LYRICS & SPOTIFY MODAL */
