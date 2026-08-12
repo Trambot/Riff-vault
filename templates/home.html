@@ -427,11 +427,12 @@
       executePlay(playlist[currentTrackIndex]);
     }
 
-    /* --- THE NEW RIGHT PANEL INTEGRATION --- */
     async function fetchLyricsForPanel(rawTitle) {
       const content = document.getElementById('lyrics-content');
       const spotifyLink = document.getElementById('spotify-link');
       
+      if(!content) return;
+
       content.innerText = 'Searching for lyrics...';
       spotifyLink.href = `https://open.spotify.com/search/${encodeURIComponent(rawTitle)}/tracks`;
       spotifyLink.style.display = 'inline-flex';
@@ -450,6 +451,11 @@
     }
 
     function executePlay(rowElement) {
+      // Ensure AudioContext isn't blocked by Safari/Chrome Autoplay policies
+      if (audioContext && audioContext.state === 'suspended') {
+          audioContext.resume();
+      }
+
       document.querySelectorAll('.track-item').forEach(el => el.classList.remove('playing'));
       rowElement.classList.add('playing');
 
@@ -462,7 +468,6 @@
       playerCover.style.display = "block";
       document.getElementById('player-cover-fallback').style.display = "none";
       
-      // Update Right Panel UI automatically!
       document.getElementById('rp-title').innerText = cleanTitle;
       document.getElementById('rp-cover').src = playerCover.src;
       document.getElementById('rp-cover').style.display = 'block';
@@ -550,7 +555,6 @@
       }
     }
 
-    /* Modals for Mobile only since Desktop has permanent panel */
     function showLyrics() {
       if (window.innerWidth <= 1024) {
         document.getElementById('right-panel').classList.add('modal-active');
