@@ -28,14 +28,12 @@
         <div class="header-flex">
           <div>
             <h1>{{ app_name }}</h1>
-            <form action="/" method="GET" class="search-form">
+            <div class="search-form">
               <div class="search-input-wrapper" style="position:relative; display:flex; align-items:center; flex-grow:1;">
                 <svg class="input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="position:absolute; left:12px; opacity:0.6;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" name="q" placeholder="Search tracks..." class="glass-input" style="padding-left:34px; width:100%;">
+                <input type="text" id="live-search" placeholder="Filter tracks instantly..." class="glass-input" style="padding-left:34px; width:100%;">
               </div>
-              <button type="submit" class="glass-btn">Search</button>
-              <a href="/" class="glass-btn" style="text-decoration:none;">Clear</a>
-            </form>
+            </div>
           </div>
         </div>
       </header>
@@ -43,7 +41,7 @@
 
     <!-- PLAYLISTS -->
     <div class="playlists-container glass-panel">
-      <h3 style="margin-top: 0; font-size: 1rem; font-weight: 600;">Global Playlists</h3>
+      <h3 style="margin-top: 0; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.3px;">Playlists</h3>
       <div class="playlist-pills">
         <a href="/" class="playlist-pill {% if not current_playlist %}active{% endif %}">All Tracks</a>
         {% for pl in playlists %}
@@ -52,11 +50,9 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
               {{ pl.name }}
             </a>
-            {% if not pl.is_auto %}
             <form action="/delete_playlist/{{ pl.id }}" method="POST" style="margin:0;">
                 <button type="submit" class="delete-btn" title="Delete Playlist">✕</button>
             </form>
-            {% endif %}
           </div>
         {% endfor %}
       </div>
@@ -68,7 +64,7 @@
 
     <!-- UPLOAD TRACK PORTAL -->
     <div class="playlists-container glass-panel">
-        <h3 style="margin-top: 0; font-size: 1rem; font-weight: 600; display:flex; align-items:center; gap:6px;">
+        <h3 style="margin-top: 0; font-size: 0.95rem; font-weight: 600; display:flex; align-items:center; gap:6px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Upload Track
         </h3>
@@ -89,7 +85,6 @@
              onclick="playFromButton(this)">
 
           <div class="track-left-side">
-            <!-- iTunes covers require cross-origin anonymous to work with ColorThief -->
             <img src="/cover/{{ track.filename }}" class="list-cover" style="object-fit: cover;" loading="lazy" crossorigin="anonymous">
             <div class="track-details">
               <strong>{{ track.filename.split('/')[-1].replace('_', ' ').replace('.flac', '').replace('.mp3', '') }}</strong>
@@ -100,20 +95,22 @@
           </div>
 
           <div class="track-right-side">
+            <button type="button" class="glass-btn small-btn mini-btn" onclick="addToQueue(this, event)">
+              Queue
+            </button>
+
             <form action="/add_to_playlist" method="POST" class="add-to-pl-form" onclick="event.stopPropagation();">
               <input type="hidden" name="track_id" value="{{ track.id }}">
               <select name="playlist_id" class="glass-input small-input mini-dropdown" required>
                 <option value="" disabled selected>Add to...</option>
                 {% for pl in playlists %}
-                  {% if not pl.is_auto %}
-                    <option value="{{ pl.id }}">{{ pl.name }}</option>
-                  {% endif %}
+                  <option value="{{ pl.id }}">{{ pl.name }}</option>
                 {% endfor %}
               </select>
               <button type="submit" class="glass-btn small-btn mini-btn">+</button>
             </form>
             
-            {% if current_playlist and not current_playlist.is_auto %}
+            {% if current_playlist %}
               <form action="/remove_from_playlist" method="POST" style="margin:0;" onclick="event.stopPropagation();">
                   <input type="hidden" name="track_id" value="{{ track.id }}">
                   <input type="hidden" name="playlist_id" value="{{ current_playlist.id }}">
@@ -197,13 +194,12 @@
                     const color = colorThief.getColor(playerCover);
                     const rgbStr = `${color[0]}, ${color[1]}, ${color[2]}`;
                     document.documentElement.style.setProperty('--accent-color', `rgb(${rgbStr})`);
-                    overlay.style.background = `radial-gradient(circle at 50% 100%, rgba(${rgbStr}, 0.3) 0%, rgba(0,0,0,0) 60%)`;
-                    premiumPlayer.style.backgroundColor = `rgba(${rgbStr}, 0.15)`;
-                    premiumPlayer.style.borderColor = `rgba(${rgbStr}, 0.4)`;
-                    premiumPlayer.style.boxShadow = `0 15px 40px rgba(${rgbStr}, 0.5)`;
+                    overlay.style.background = `radial-gradient(circle at 50% 100%, rgba(${rgbStr}, 0.2) 0%, rgba(0,0,0,0) 60%)`;
+                    premiumPlayer.style.backgroundColor = `rgba(18, 18, 18, 0.95)`;
+                    premiumPlayer.style.borderColor = `rgba(${rgbStr}, 0.3)`;
                 } catch(e) {
                     document.documentElement.style.setProperty('--accent-color', `rgb(178, 120, 255)`);
-                    premiumPlayer.style.backgroundColor = `rgba(255, 255, 255, 0.1)`;
+                    premiumPlayer.style.backgroundColor = `rgba(18, 18, 18, 0.95)`;
                 }
             }, 50);
         }
@@ -211,10 +207,47 @@
 
     let isShuffle = false;
     let currentTrackIndex = -1;
+    let customQueue = [];
 
-    function getPlaylist() { return Array.from(document.querySelectorAll('.track-row')); }
-    function formatTime(s) { if(isNaN(s)) return "0:00"; let m=Math.floor(s/60), sec=Math.floor(s%60); return `${m}:${sec<10?'0':''}${sec}`; }
-    function toggleShuffle() { isShuffle = !isShuffle; document.getElementById('shuffle-btn').classList.toggle('active', isShuffle); }
+    function getPlaylist() { 
+      return Array.from(document.querySelectorAll('.track-row')).filter(el => el.style.display !== 'none'); 
+    }
+    
+    function formatTime(s) { 
+      if(isNaN(s)) return "0:00"; 
+      let m=Math.floor(s/60), sec=Math.floor(s%60); 
+      return `${m}:${sec<10?'0':''}${sec}`; 
+    }
+
+    function toggleShuffle() { 
+      isShuffle = !isShuffle; 
+      document.getElementById('shuffle-btn').classList.toggle('active', isShuffle); 
+    }
+
+    /* INSTANT SEARCH FILTER */
+    document.getElementById('live-search').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const tracks = document.querySelectorAll('.track-row');
+        tracks.forEach(track => {
+            const title = track.getAttribute('data-name').toLowerCase();
+            track.style.display = title.includes(searchTerm) ? 'flex' : 'none';
+        });
+    });
+
+    /* QUEUE SYSTEM */
+    function addToQueue(btnElement, event) {
+        event.stopPropagation();
+        const trackRow = btnElement.closest('.track-row');
+        customQueue.push(trackRow);
+        
+        const origText = btnElement.innerText;
+        btnElement.innerText = "Queued";
+        btnElement.style.borderColor = "var(--accent-color)";
+        setTimeout(() => {
+            btnElement.innerText = origText;
+            btnElement.style.borderColor = "";
+        }, 1500);
+    }
 
     function playFromButton(rowElement) {
       setupVisualizer();
@@ -225,6 +258,14 @@
     function playNext(manual = false) {
       const playlist = getPlaylist();
       if (!playlist.length) return;
+
+      if (customQueue.length > 0) {
+        const nextTrackRow = customQueue.shift();
+        currentTrackIndex = playlist.indexOf(nextTrackRow);
+        executePlay(nextTrackRow);
+        return;
+      }
+
       currentTrackIndex = isShuffle ? Math.floor(Math.random() * playlist.length) : (currentTrackIndex + 1) % playlist.length;
       executePlay(playlist[currentTrackIndex]);
     }
@@ -269,6 +310,7 @@
       document.getElementById('total-time').innerText = formatTime(masterAudio.duration);
     });
     
+    /* SEEKING CONTROLS */
     seekBar.addEventListener('input', () => masterAudio.currentTime = seekBar.value);
     
     function togglePlay() {
@@ -281,6 +323,7 @@
         playPauseSvg.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
       }
     }
+    
     function changeVolume(val) { masterAudio.volume = val; }
 
     const canvas = document.getElementById('visualizer');
@@ -326,11 +369,9 @@
         const xEnd = centerX + Math.cos(angle) * (baseRadius + barHeight);
         const yEnd = centerY + Math.sin(angle) * (baseRadius + barHeight);
 
-        ctx.strokeStyle = `rgba(178, 120, 255, ${dataArray[i] / 255 + 0.2})`;
-        ctx.lineWidth = 4;
+        ctx.strokeStyle = `rgba(178, 120, 255, ${dataArray[i] / 255 + 0.15})`;
+        ctx.lineWidth = 3;
         ctx.lineCap = 'round';
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = `rgba(178, 120, 255, 0.8)`;
         ctx.beginPath();
         ctx.moveTo(xStart, yStart);
         ctx.lineTo(xEnd, yEnd);
