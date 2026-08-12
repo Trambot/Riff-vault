@@ -123,19 +123,24 @@
               '').replace('.mp3', '') }}</strong>
 
             <script>
-              // Clean up long artist/title strings automatically on load
               (function () {
                 let el = document.getElementById('track-title-{{ track.id }}');
                 if (el) {
-                  let text = el.innerText;
-                  // If the filename contains a dash, let's format it nicer (e.g. "Artist - Song Name")
-                  // If it's too bloated with multiple artists, we can truncate or format it cleanly
-                  if (text.length > 45) {
-                    // Keeps it tidy or shows a condensed version
-                    el.title = text; // Tooltip shows full name on hover
+                  let text = el.innerText.trim();
+
+                  // If filename has a dash format like "Artists - SongName"
+                  if (text.includes(' - ')) {
+                    let parts = text.split(' - ');
+                    let artists = parts[0].trim();
+                    let songName = parts.slice(1).join(' - ').trim(); // Keeps rest as song name
+
+                    // Put song name FIRST, then artists in smaller/muted format or parentheses
+                    el.innerHTML = `${songName} <span style="font-size: 0.75rem; opacity: 0.5; font-weight: 400;">(${artists})</span>`;
+                    el.title = text; // Keeps original full text on hover
                   }
                 }
               })();
+            </script>
             </script>
             <div class="track-stats">
               Plays: <span id="plays-{{track.id}}">{{ track.plays }}</span> • Cloud Stream
