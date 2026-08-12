@@ -68,8 +68,8 @@ def sync_library():
         folders_to_check = ["bollywood", "DHURANDHAR", ""]
         
         for folder in folders_to_check:
-            # If folder is specified, use the prefix parameter to look inside it
-            options = {"resource_type": "video", "max_results": 500}
+            # ADDED "type": "upload" here to fix the Cloudinary Error 400
+            options = {"resource_type": "video", "type": "upload", "max_results": 500}
             if folder:
                 options["prefix"] = f"{folder}/"
                 
