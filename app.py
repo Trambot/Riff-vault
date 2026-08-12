@@ -118,108 +118,74 @@ with app.app_context():
 @app.route("/")
 @app.route("/")
 def home():
-    # Force a live background sync on every page load so Render never falls out of sync
+    # Force a live background sync on every page load
     try:
         sync_library()
     except Exception:
         pass
 
+    # For an SPA, we always load ALL tracks and ALL playlists on the first hit.
+    # The JavaScript frontend will handle the hiding/showing without reloading the page!
     all_playlists = db.session.query(Playlist).all()
+    all_tracks = db.session.query(Track).all()
     song_requests = db.session.query(SongRequest).all()
-    search_query = request.args.get("q")
-    playlist_id = request.args.get("playlist_id")
-    current_playlist = None
-    
-    if playlist_id:
-        current_playlist = db.session.get(Playlist, playlist_id)
-        db_tracks = current_playlist.tracks if current_playlist else []
-    elif search_query:
-        db_tracks = db.session.query(Track).filter(Track.filename.ilike(f"%{search_query}%")).all()
-    else:
-        db_tracks = db.session.query(Track).all()
         
-    return render_template("home.html", app_name="Riff Vault", tracks=db_tracks, playlists=all_playlists, current_playlist=current_playlist, song_requests=song_requests)
+    return render_template("home.html", 
+                           app_name="Riff Vault", 
+                           tracks=all_tracks, 
+                           playlists=all_playlists, 
+                           song_requests=song_requests)
 
-@app.route("/upload", methods=["POST"])
-def upload_track():
-    # Check if files were sent in the request
-    if 'audio_files' not in request.files:
-        return redirect(url_for('home'))
-        
-    files = request.files.getlist('audio_files')
-    custom_folder = request.form.get('folder_name', '').strip()
-    
-    uploaded_count = 0
-    for file in files:
-        if file.filename != '':
-            try:
-                # If a folder name was explicitly typed, use it. 
-                # Otherwise, if uploading a directory, parse its parent folder name automatically.
-                target_folder = custom_folder
-                if not target_folder and '/' in file.filename:
-                    target_folder = file.filename.split('/')[0]
-                elif not target_folder:
-                    target_folder = 'Root'
+from flask import jsonify, request
 
-                cloudinary.uploader.upload(
-                    file, 
-                    resource_type="video", 
-                    folder=target_folder, 
-                    use_filename=True, 
-                    unique_filename=False
-                )
-                uploaded_count += 1
-            except Exception as e:
-                print(f"Upload failed for {file.filename}: {e}")
-                
-    if uploaded_count > 0:
-        sync_library() # Re-sync once after the batch upload finishes
-            
-    return redirect(url_for("home"))
-
-@app.route("/create_playlist", methods=["POST"])
+@app.route("/create_playlist_ajax", methods=["POST"])
 def create_playlist():
-    name = request.form.get("playlist_name")
+    data = request.get_json()
+    name = data.get("name")
     if name and not db.session.query(Playlist).filter_by(name=name).first():
-        db.session.add(Playlist(name=name, is_auto=False))
+        new_pl = Playlist(name=name, is_auto=False)
+        db.session.add(new_pl)
         db.session.commit()
-    return redirect(url_for("home"))
+        return jsonify({"success": True, "id": new_pl.id, "name": new_pl.name})
+    return jsonify({"success": False}), 400
 
-@app.route("/delete_playlist/<int:pl_id>", methods=["POST"])
+@app.route("/delete_playlist_ajax/<int:pl_id>", methods=["POST"])
 def delete_playlist(pl_id):
     pl = db.session.get(Playlist, pl_id)
     if pl and not pl.is_auto: 
         db.session.delete(pl)
         db.session.commit()
-    return redirect(url_for("home"))
+        return jsonify({"success": True})
+    return jsonify({"success": False}), 400
 
-@app.route("/add_to_playlist", methods=["POST"])
+@app.route("/add_to_playlist_ajax", methods=["POST"])
 def add_to_playlist():
-    track_id, playlist_id = request.form.get("track_id"), request.form.get("playlist_id")
+    data = request.get_json()
+    track_id, playlist_id = data.get("track_id"), data.get("playlist_id")
     if track_id and playlist_id:
-        track, playlist = db.session.get(Track, track_id), db.session.get(Playlist, playlist_id)
+        track = db.session.get(Track, int(track_id))
+        playlist = db.session.get(Playlist, int(playlist_id))
         if track and playlist and not playlist.is_auto and track not in playlist.tracks:
             playlist.tracks.append(track)
             db.session.commit()
-    return redirect(request.referrer or url_for("home"))
+            return jsonify({"success": True})
+    return jsonify({"success": False}), 400
 
-@app.route("/remove_from_playlist", methods=["POST"])
+@app.route("/remove_from_playlist_ajax", methods=["POST"])
 def remove_from_playlist():
-    track_id = request.form.get("track_id")
-    playlist_id = request.form.get("playlist_id")
-    
+    data = request.get_json()
+    track_id, playlist_id = data.get("track_id"), data.get("playlist_id")
     if track_id and playlist_id:
         try:
             track = db.session.get(Track, int(track_id))
             playlist = db.session.get(Playlist, int(playlist_id))
-            
             if track and playlist and track in playlist.tracks:
                 playlist.tracks.remove(track)
                 db.session.commit()
+                return jsonify({"success": True})
         except ValueError:
             pass 
-            
-    return redirect(request.referrer or url_for("home"))
+    return jsonify({"success": False}), 400
 
 @app.route("/request_song", methods=["POST"])
 @limiter.limit("3 per minute") 

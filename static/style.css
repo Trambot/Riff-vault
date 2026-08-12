@@ -7,6 +7,7 @@ body {
   background-image: url('my_bg.jpg'); 
   background-size: cover; background-position: center; background-attachment: fixed; 
   background-color: #0b0c10; color: #f0f0f0; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh;
+  overflow-x: hidden;
 }
 
 ::-webkit-scrollbar { width: 6px; }
@@ -19,24 +20,37 @@ body {
   z-index: -2; pointer-events: none; transition: background 0.8s ease;
 }
 
-.app-container { max-width: 900px; margin: 0 auto; padding: 0 20px 30px 20px; }
+/* --- SPA GRID LAYOUT --- */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Sidebar styling */
+.app-sidebar {
+  width: 260px; flex-shrink: 0; padding: 20px; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 12, 16, 0.75);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.main-content-area {
+  flex-grow: 1; padding: 20px 30px;
+  max-width: calc(100% - 260px); box-sizing: border-box;
+}
 
 .sticky-header-wrapper {
-  position: sticky; top: 0; z-index: 100;
-  margin: 0 -20px 20px -20px; padding: 20px 20px 10px 20px;
+  position: sticky; top: 0; z-index: 90;
+  margin: -20px -30px 20px -30px; padding: 20px 30px 10px 30px;
   background: linear-gradient(to bottom, rgba(11,12,16,0.95) 70%, rgba(11,12,16,0));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
-.header-flex { display: flex; justify-content: space-between; align-items: flex-start; }
-
-.header-title-row { 
-  display: flex; 
-  align-items: center; 
-  gap: 15px; 
-  margin-bottom: 12px; 
-}
-.app-header h1 { font-size: 2rem; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
+.header-flex { display: flex; align-items: center; gap: 15px; }
+.header-title-row { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
 #header-visualizer { opacity: 0.8; margin-top: 4px; display: none; }
 
 /* FLAT MODERN DARK PANELS */
@@ -48,62 +62,52 @@ body {
 }
 
 .glass-btn { 
-  display: inline-block; padding: 7px 14px; border-radius: 8px; 
-  cursor: pointer; font-size: 0.8rem; font-weight: 500; color: #eee; 
-  text-decoration: none; transition: background 0.2s, border-color 0.2s; 
+  display: inline-block; padding: 7px 14px; border-radius: 8px; cursor: pointer; 
+  font-size: 0.8rem; font-weight: 500; color: #eee; text-decoration: none; 
+  transition: background 0.2s, border-color 0.2s; 
   border: 1px solid rgba(255,255,255,0.12); background: rgba(255, 255, 255, 0.03);
 }
 .glass-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.25); }
 
 .glass-input { border-radius: 8px; padding: 7px 12px; color: white; outline: none; width: 180px; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.12); }
 .glass-input::placeholder { color: rgba(255, 255, 255, 0.4); } 
-.glass-input option { color: black; }
-
 .small-input { padding: 5px 8px; font-size: 0.75rem; width: 110px; } 
 .small-btn { padding: 5px 10px; font-size: 0.75rem; }
 
-.playlists-container { padding: 14px 18px; border-radius: 12px; margin-bottom: 16px; }
-.playlist-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-.playlist-group { display: flex; align-items: center; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; overflow: hidden; }
-.playlist-pill { padding: 6px 12px; color: #ccc; text-decoration: none; font-size: 0.8rem; transition: background 0.2s, color 0.2s; }
+/* PLAYLIST PILLS */
+.playlist-pills { display: flex; flex-direction: column; gap: 6px; }
+.playlist-group { display: flex; align-items: center; border-radius: 8px; overflow: hidden; }
+.playlist-pill { padding: 8px 12px; color: #ccc; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: background 0.2s, color 0.2s; border-radius: 8px; }
 .playlist-pill:hover, .playlist-pill.active { background: rgba(255, 255, 255, 0.12); color: white; }
-.delete-btn { background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; padding: 6px 10px; font-size: 0.8rem; border-left: 1px solid rgba(255,255,255,0.08); transition: color 0.2s;}
-.delete-btn:hover { color: #ff4c4c; background: rgba(255,0,0,0.15); }
-.create-playlist-form { display: flex; gap: 8px; }
+.delete-btn { background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; padding: 8px 12px; font-size: 0.8rem; transition: color 0.2s;}
+.delete-btn:hover { color: #ff4c4c; background: rgba(255,0,0,0.15); border-radius: 8px; }
 
 .section-title { margin-top: 10px; margin-bottom: 12px; font-size: 1rem; font-weight: 600; opacity: 0.9; }
-
 .vertical-track-list { display: flex; flex-direction: column; gap: 8px; }
 
 /* FLAT TRACK ROWS */
 .track-row { 
-  border-radius: 8px; padding: 8px 14px; display: flex; 
-  justify-content: space-between; align-items: center; cursor: pointer; 
-  transition: background 0.2s ease, border-color 0.2s ease; 
+  border-radius: 8px; padding: 8px 14px; display: flex; justify-content: space-between; 
+  align-items: center; cursor: pointer; transition: background 0.2s ease, border-color 0.2s ease; 
 }
 .track-row:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.18); }
 .track-row.playing { background: rgba(255, 255, 255, 0.12); border-left: 3px solid var(--accent-color); }
-
 .track-left-side { display: flex; align-items: center; overflow: hidden; }
 .track-right-side { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .list-cover { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.05); border-radius: 6px; margin-right: 12px; flex-shrink: 0; }
-.track-details strong { 
-  font-size: 0.9rem; 
-  font-weight: 500; 
-  display: block; 
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-  max-width: 400px; /* Limits the length so it doesn't overflow the row */
-}
+.track-details strong { font-size: 0.9rem; font-weight: 500; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; }
 .track-stats { font-size: 0.72rem; color: rgba(255, 255, 255, 0.45); margin-top: 2px; }
 
-.add-to-pl-form { display: flex; gap: 5px; margin: 0; }
-
-.action-indicators { width: 20px; display: flex; justify-content: center; align-items: center; margin-left: 4px; }
-.play-icon { opacity: 0; font-size: 1.1rem; transition: opacity 0.2s; }
-.track-row:hover .play-icon { opacity: 0.8; }
-.track-row.playing .play-icon { display: none; }
+/* LIVE SEARCH DROPDOWN */
+.search-results-dropdown {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: rgba(18, 18, 22, 0.98); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px;
+  max-height: 280px; overflow-y: auto; z-index: 1000; display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}
+.search-dropdown-item { padding: 10px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.search-dropdown-item:hover { background: rgba(255,255,255,0.08); }
 
 /* FLOATING BOTTOM PLAYER */
 #premium-player {
@@ -111,106 +115,47 @@ body {
   width: calc(100% - 32px); max-width: 860px; height: 76px;
   border-radius: 16px; padding: 0 20px; box-sizing: border-box; z-index: 1000;
   display: flex; justify-content: space-between; align-items: center;
-  background: rgba(18, 18, 18, 0.95);
-  border: 1px solid rgba(255,255,255,0.12); 
-  transition: border-color 0.4s ease;
+  background: rgba(18, 18, 18, 0.95); border: 1px solid rgba(255,255,255,0.12); 
 }
 .player-left, .player-center, .player-right { display: flex; align-items: center; }
 .player-left { width: 30%; overflow: hidden;}
 .player-center { width: 40%; flex-direction: column; justify-content: center;}
 .player-right { width: 30%; justify-content: flex-end;}
-
-.album-art { width: 44px; height: 44px; background: rgba(255,255,255,0.08); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 18px; margin-right: 10px; flex-shrink: 0; }
-#current-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+.album-art { width: 44px; height: 44px; background: rgba(255,255,255,0.08); border-radius: 6px; display: flex; justify-content: center; align-items: center; margin-right: 10px; flex-shrink: 0; }
+#current-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #current-artist { font-size: 0.72rem; color: rgba(255, 255, 255, 0.5); }
-
 .playback-controls button { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; margin: 0 12px; opacity: 0.75; transition: opacity 0.2s; }
 .playback-controls button:hover { opacity: 1; }
 #play-pause-btn { font-size: 24px; opacity: 1;}
 #shuffle-btn.active { color: var(--accent-color); opacity: 1; }
-
 .progress-container { display: flex; align-items: center; width: 100%; max-width: 340px; margin-top: 4px; }
 .progress-container span { font-size: 10px; color: rgba(255,255,255,0.5); min-width: 32px; text-align: center; }
 input[type=range] { -webkit-appearance: none; background: rgba(255, 255, 255, 0.15); height: 3px; border-radius: 2px; cursor: pointer; flex-grow: 1; margin: 0 8px; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: white; border-radius: 50%; }
 #volume-bar { width: 60px; margin-left: 6px; }
 
-/* MOBILE RESPONSIVE DESIGN (FIXES) */
+/* MOBILE RESPONSIVE DESIGN */
+.mobile-sidebar-toggle { display: none; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; align-items: center; gap: 6px; font-size: 0.85rem; }
 @media (max-width: 768px) {
-  .sticky-header-wrapper { margin: 0 -10px 10px -10px; padding: 10px; }
-  .app-container { padding: 0 10px 130px 10px; }
-  
-  .header-flex { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
-  .header-title-row { gap: 10px; margin-bottom: 10px; }
-  .app-header h1 { font-size: 1.5rem; margin: 0; }
-  #header-visualizer { width: 90px; height: 20px; }
-
-  /* Stack upload form correctly */
-  form.upload-form { 
-    flex-direction: column !important; 
-    align-items: stretch !important; 
-    gap: 8px;
-  }
-  form.upload-form input, 
-  form.upload-form button { 
-    width: 100% !important; 
-    box-sizing: border-box; 
-    margin: 0 !important;
-  }
-
-  /* Wrap track row buttons safely */
+  .app-layout { flex-direction: column; }
+  .app-sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; transform: translateX(-100%); z-index: 2000; }
+  .app-sidebar.open { transform: translateX(0); }
+  .main-content-area { max-width: 100%; padding: 15px; padding-bottom: 120px; }
+  .sticky-header-wrapper { margin: -15px -15px 15px -15px; padding: 15px; }
+  .mobile-sidebar-toggle { display: flex; }
+  .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1500; display: none; }
+  .sidebar-backdrop.active { display: block; }
   .track-row { flex-wrap: wrap; padding: 10px; gap: 6px; }
   .track-left-side { width: 100%; }
-  .list-cover { width: 42px; height: 42px; margin-right: 12px; }
-  .track-details strong { font-size: 0.9rem; }
-  
-  .track-right-side { 
-    width: 100%; 
-    justify-content: flex-start; 
-    padding-left: 54px; /* Align with text */
-    box-sizing: border-box; 
-    gap: 8px; 
-    flex-wrap: wrap; 
-  }
-  
-  .mini-dropdown { max-width: 100px; padding: 6px 8px; font-size: 0.75rem; }
-  .mini-btn { padding: 6px 12px; font-size: 0.75rem; }
-  
-  #premium-player { 
-    bottom: 10px; width: calc(100% - 20px); height: auto; 
-    padding: 10px 15px; flex-direction: column; gap: 8px; border-radius: 16px;
-  }
-  .player-left { width: 100%; }
-  .album-art { width: 40px; height: 40px; margin-right: 12px; } 
-  .player-center { width: 100%; }
-  .playback-controls button { margin: 0 12px; }
+  .track-right-side { width: 100%; justify-content: flex-start; padding-left: 54px; box-sizing: border-box; }
+  #premium-player { bottom: 10px; width: calc(100% - 20px); height: auto; padding: 10px 15px; flex-direction: column; gap: 8px; border-radius: 16px; }
+  .player-left, .player-center { width: 100%; }
   .player-right { display: none; }
 }
 
 /* LYRICS & SPOTIFY MODAL */
-#lyrics-modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px); z-index: 1999; display: none;
-}
-
-#lyrics-modal {
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 90%; max-width: 500px; max-height: 80vh; z-index: 2000;
-  display: none; flex-direction: column; gap: 15px; padding: 20px;
-  border-radius: 16px; overflow-y: auto;
-}
-
-.spotify-btn {
-  background: #1DB954; color: white; border: none; font-weight: 600;
-  text-align: center; padding: 12px; border-radius: 8px; text-decoration: none;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  font-size: 0.95rem; transition: background 0.2s;
-}
-
+#lyrics-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 1999; display: none; }
+#lyrics-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; max-height: 80vh; z-index: 2000; display: none; flex-direction: column; gap: 15px; padding: 20px; border-radius: 16px; overflow-y: auto; }
+.spotify-btn { background: #1DB954; color: white; border: none; font-weight: 600; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; transition: background 0.2s; }
 .spotify-btn:hover { background: #1ed760; }
-
-#lyrics-content {
-  white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; color: #ddd;
-  margin-top: 10px; text-align: center; font-family: inherit;
-}
+#lyrics-content { white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; color: #ddd; margin-top: 10px; text-align: center; font-family: inherit; }
