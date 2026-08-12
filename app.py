@@ -2,7 +2,8 @@ import os
 import io
 import urllib.parse
 import requests
-from flask import Flask, render_template, request, redirect, url_for, send_file
+import threading
+from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import cloudinary
 import cloudinary.uploader
@@ -61,7 +62,6 @@ class SongRequest(db.Model):
 def sync_library():
     print("☁️ Running deep-crawl Cloudinary sync...")
     try:
-        # Fetch resources across the entire account without restricting to root only
         response = cloudinary.api.resources(
             resource_type="video", 
             type="upload", 
@@ -75,19 +75,15 @@ def sync_library():
             if not public_id or 'cover' in public_id.lower():
                 continue
 
-            # Automatically extract the folder name from the public_id path 
-            # (e.g., "New folder/song_name" -> folder_name = "New folder")
             parts = public_id.split('/')
             folder_name = parts[0] if len(parts) > 1 else "Root"
             
-            # 1. Handle Playlist
             playlist = db.session.query(Playlist).filter_by(name=folder_name).first()
             if not playlist:
                 playlist = Playlist(name=folder_name, is_auto=True)
                 db.session.add(playlist)
                 db.session.commit()
                 
-            # 2. Handle Track
             track = db.session.query(Track).filter_by(filename=public_id).first()
             if not track:
                 track = Track(
@@ -100,7 +96,6 @@ def sync_library():
                 db.session.add(track)
                 db.session.commit()
                 
-            # 3. Link Track
             if track not in playlist.tracks:
                 playlist.tracks.append(track)
                 db.session.commit()
@@ -109,23 +104,19 @@ def sync_library():
     except Exception as e:
         print(f"❌ Cloudinary sync failed: {e}")
 
-# Build DB and Sync before the app starts handling requests (Crucial for Gunicorn/Render)
+# Build DB and run initial sync in the background so the app boots instantly
 with app.app_context():
     db.create_all()
-    sync_library()
+
+def run_sync_in_background():
+    with app.app_context():
+        sync_library()
+
+threading.Thread(target=run_sync_in_background).start()
 
 # --- ROUTES ---
 @app.route("/")
-@app.route("/")
 def home():
-    # Force a live background sync on every page load
-    try:
-        sync_library()
-    except Exception:
-        pass
-
-    # For an SPA, we always load ALL tracks and ALL playlists on the first hit.
-    # The JavaScript frontend will handle the hiding/showing without reloading the page!
     all_playlists = db.session.query(Playlist).all()
     all_tracks = db.session.query(Track).all()
     song_requests = db.session.query(SongRequest).all()
@@ -136,7 +127,16 @@ def home():
                            playlists=all_playlists, 
                            song_requests=song_requests)
 
-from flask import jsonify, request
+# --- AJAX ROUTES ---
+@app.route("/sync_ajax", methods=["POST"])
+def sync_ajax():
+    try:
+        print("🔄 Manual sync triggered via AJAX...")
+        sync_library() 
+        return jsonify({"success": True})
+    except Exception as e:
+        print(f"❌ AJAX Sync Failed: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route("/create_playlist_ajax", methods=["POST"])
 def create_playlist():

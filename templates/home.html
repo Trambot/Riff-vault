@@ -15,7 +15,6 @@
     rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
   <style>
-    /* Hides the desktop collapse button when viewing on a phone */
     @media (max-width: 768px) {
       .desktop-toggle-btn {
         display: none !important;
@@ -31,9 +30,7 @@
   <div class="app-layout">
     <!-- 1. LIQUID GLASS SIDEBAR -->
     <aside class="app-sidebar glass-panel" id="app-sidebar">
-      <!-- Sidebar Top: Just the Desktop Collapse Button -->
       <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px;">
-        <!-- Desktop Collapse Button -->
         <button class="glass-btn small-btn desktop-toggle-btn"
           onclick="document.getElementById('app-sidebar').classList.toggle('collapsed')"
           style="padding: 6px; display: flex; align-items: center; justify-content: center;" title="Toggle Sidebar">
@@ -41,18 +38,17 @@
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>
-        <!-- Mobile Close Menu Button -->
         <button onclick="toggleSidebar()" class="mobile-sidebar-toggle" style="border: none; padding: 0;">✕</button>
       </div>
 
       <div class="playlist-pills" style="margin-top: 10px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top:0; margin-bottom: 12px;">
-  <h3 class="section-title" style="margin: 0;">Library</h3>
-  <button onclick="triggerCloudSync(this)" class="glass-btn small-btn" style="padding: 4px 8px; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;" title="Sync Cloudinary">
-    <svg id="sync-spinner" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-10.02l5.25 5.25"/></svg>
-    Sync
-  </button>
-</div>
+          <h3 class="section-title" style="margin: 0;">Library</h3>
+          <button onclick="triggerCloudSync(this)" class="glass-btn small-btn" style="padding: 4px 8px; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;" title="Sync Cloudinary">
+            <svg id="sync-spinner" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-10.02l5.25 5.25"/></svg>
+            Sync
+          </button>
+        </div>
 
         <!-- ALL TRACKS -->
         <a href="#" class="playlist-pill active" onclick="loadPlaylistView('all', 'All Vault Tracks', this)"
@@ -103,7 +99,6 @@
           <!-- Top Row: Clean Menu & Title + Visualizer (All aligned Left) -->
           <div class="header-flex" style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; width: 100%;">
             
-            <!-- Mobile Menu Toggle (Borderless & Clean) -->
             <button class="mobile-sidebar-toggle" onclick="toggleSidebar()">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -112,7 +107,6 @@
               </svg>
             </button>
             
-            <!-- App Title & Visualizer Group -->
             <div class="header-brand-group" style="display: flex; align-items: center; gap: 12px;">
               <h1 style="margin: 0; font-size: 1.7rem; font-weight: 700; letter-spacing: -0.5px;">{{ app_name }}</h1>
               <canvas id="header-visualizer" width="120" height="20" style="margin-top: 4px;"></canvas>
@@ -127,13 +121,16 @@
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-              <!-- Notice the inline styles here removing the border to match Spotify's pill search -->
               <input type="text" id="live-search" placeholder="Search tracks instantly..." class="glass-input"
                 style="padding-left:38px; width:100%; box-sizing: border-box; border: none; background: rgba(255,255,255,0.08); height: 42px; border-radius: 20px;">
             </div>
             <div id="search-results-dropdown" class="search-results-dropdown"></div>
           </div>
         </header>
+      </div>
+      
+      <!-- CENTER COLUMN WRAPPER (This constrains and centers the tracks perfectly) -->
+      <div class="center-column">
         <!-- ACTIVE PLAYLIST / VAULT TRACKS -->
         <h3 id="current-view-title" class="section-title">All Vault Tracks</h3>
 
@@ -149,8 +146,7 @@
               <img src="/cover/{{ track.filename }}" class="list-cover" style="object-fit: cover;" loading="lazy"
                 crossorigin="anonymous">
               <div class="track-details">
-                <strong id="track-title-{{ track.id }}">{{ track.filename.split('/')[-1].replace('_', '
-                  ').replace('.flac', '').replace('.mp3', '') }}</strong>
+                <strong id="track-title-{{ track.id }}">{{ track.filename.split('/')[-1].replace('_', ' ').replace('.flac', '').replace('.mp3', '') }}</strong>
                 <script>
                   (function () {
                     let el = document.getElementById('track-title-{{ track.id }}');
@@ -180,15 +176,16 @@
           {% endfor %}
         </div>
 
-        <!-- ADD MISSING TRACKS SECTION (Only visible when inside a specific playlist) -->
+        <!-- ADD MISSING TRACKS SECTION -->
         <div id="missing-tracks-section" style="display: none;">
           <h3 class="section-title" style="margin-top: 30px; opacity: 0.7;">Add Missing Tracks</h3>
           <div class="vertical-track-list" id="missing-track-list" style="opacity: 0.85;">
             <!-- JS clones un-added tracks here automatically -->
           </div>
         </div>
+      </div> <!-- End of center-column -->
 
-        <div style="height: 140px;"></div>
+      <div style="height: 140px;"></div>
     </main>
   </div>
 
