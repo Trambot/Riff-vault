@@ -27,7 +27,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Sidebar styling */
+/* Sidebar styling (Default Desktop) */
 .app-sidebar {
   width: 260px; flex-shrink: 0; padding: 20px; box-sizing: border-box;
   display: flex; flex-direction: column; gap: 20px;
@@ -35,8 +35,22 @@ body {
   background: rgba(12, 12, 16, 0.75);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 100;
-  transition: transform 0.3s ease;
+  transition: width 0.3s ease, padding 0.3s ease, transform 0.3s ease;
 }
+
+/* DESKTOP COLLAPSED SIDEBAR STATE */
+.app-sidebar.collapsed { width: 90px; padding: 20px 10px; }
+.app-sidebar.collapsed h2, 
+.app-sidebar.collapsed .section-title,
+.app-sidebar.collapsed .create-playlist-form { display: none; }
+.app-sidebar.collapsed .playlist-pill { 
+  font-size: 0.7rem; 
+  padding: 10px 4px; 
+  text-align: center; 
+  flex-direction: column; 
+  gap: 6px;
+}
+.app-sidebar.collapsed .delete-btn { display: none; }
 
 .main-content-area {
   flex-grow: 1; padding: 20px 30px;
@@ -92,7 +106,7 @@ body {
 }
 .track-row:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.18); }
 .track-row.playing { background: rgba(255, 255, 255, 0.12); border-left: 3px solid var(--accent-color); }
-.track-left-side { display: flex; align-items: center; overflow: hidden; }
+.track-left-side { display: flex; align-items: center; overflow: hidden; width: 100%; }
 .track-right-side { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .list-cover { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.05); border-radius: 6px; margin-right: 12px; flex-shrink: 0; }
 .track-details strong { font-size: 0.9rem; font-weight: 500; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; }
@@ -134,7 +148,7 @@ input[type=range] { -webkit-appearance: none; background: rgba(255, 255, 255, 0.
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: white; border-radius: 50%; }
 #volume-bar { width: 60px; margin-left: 6px; }
 
-/* MOBILE RESPONSIVE DESIGN */
+/* BASE MOBILE SIDEBAR TOGGLE BUTTON */
 .mobile-sidebar-toggle { 
   display: none; 
   background: transparent; 
@@ -149,6 +163,46 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
 }
 .mobile-sidebar-toggle:hover {
   background: rgba(255, 255, 255, 0.08);
+}
+
+/* -------------------------------------------
+   CRITICAL MOBILE OVERRIDES (FIXES THE MANGLED UI)
+   ------------------------------------------- */
+@media (max-width: 768px) {
+  body { background-attachment: scroll; } /* Stops iOS Safari white screen crash */
+  .app-layout { flex-direction: column; display: block; }
+  
+  /* Force Sidebar to float OVER the screen, not push it */
+  .app-sidebar { 
+    position: fixed; top: 0; left: 0; width: 280px; height: 100vh; 
+    transform: translateX(-100%); z-index: 3000; 
+  }
+  .app-sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.8); }
+  
+  /* Reset Main Content so it doesn't squish */
+  .main-content-area { max-width: 100%; width: 100%; padding: 15px; padding-bottom: 160px; }
+  .sticky-header-wrapper { margin: -15px -15px 15px -15px; padding: 15px; }
+  .mobile-sidebar-toggle { display: flex; margin-right: auto; }
+  
+  .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1500; display: none; }
+  .sidebar-backdrop.active { display: block; }
+  
+  /* Fix Track Rows from bunching up */
+  .track-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .track-left-side { width: 100%; }
+  .track-right-side { width: 100%; justify-content: flex-end; padding-left: 0; }
+  
+  /* Un-crush the Premium Player */
+  #premium-player { 
+    bottom: 10px; width: calc(100% - 20px); height: auto; 
+    padding: 15px; flex-direction: column; gap: 12px; 
+    border-radius: 16px; z-index: 2000;
+  }
+  .player-left { width: 100%; justify-content: center; text-align: center; }
+  .player-center { width: 100%; }
+  .playback-controls { width: 100%; display: flex; justify-content: space-around; margin-bottom: 8px; }
+  .playback-controls button { margin: 0; }
+  .player-right { display: none; }
 }
 
 /* LYRICS & SPOTIFY MODAL */
