@@ -59,22 +59,25 @@ class SongRequest(db.Model):
     title = db.Column(db.String(200), nullable=False)
 
 def sync_library():
-    print("☁️ Running deep scan across Cloudinary...")
+    print("☁️ Syncing library across folders...")
     try:
         total_found = 0
-        # Scan video/audio, raw, and image asset types
-        for r_type in ["video", "raw", "image"]:
-            response = cloudinary.api.resources(resource_type=r_type, max_results=500)
+        # List the specific folders you have in Cloudinary, plus root ('')
+        folders_to_check = ["bollywood", "DHURANDHAR", ""]
+        
+        for folder in folders_to_check:
+            # If folder is specified, use the prefix parameter to look inside it
+            options = {"resource_type": "video", "max_results": 500}
+            if folder:
+                options["prefix"] = f"{folder}/"
+                
+            response = cloudinary.api.resources(**options)
             resources = response.get('resources', [])
-            print(f"📦 Type '{r_type}': Found {len(resources)} items.")
+            print(f"📦 Folder '{folder or 'Root'}': Found {len(resources)} items.")
             
             for res in resources:
                 public_id = res.get('public_id') 
-                if not public_id:
-                    continue
-
-                # Skip cover art files so they don't show up as playable songs in the UI
-                if 'cover' in public_id.lower():
+                if not public_id or 'cover' in public_id.lower():
                     continue
 
                 total_found += 1
@@ -109,9 +112,6 @@ def sync_library():
         print(f"✅ Sync complete! Added {total_found} total tracks to database.")
     except Exception as e:
         print(f"❌ Cloudinary sync failed: {e}")
-# Build DB and Sync before the app starts handling requests (Crucial for Gunicorn/Render)
-with app.app_context():
-    db.create_all()
     sync_library()
 
 # --- ROUTES ---
