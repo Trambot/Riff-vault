@@ -20,3 +20,4 @@ instance/
 # OS generated files
 .DS_Store
 Thumbs.dbg
+music/
