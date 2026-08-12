@@ -61,56 +61,49 @@ class SongRequest(db.Model):
     title = db.Column(db.String(200), nullable=False)
 
 def sync_library():
-    print("☁️ Syncing library across folders...")
+    print("☁️ Forcing Cloudinary to reveal ALL files...")
     try:
         total_found = 0
-        # List the specific folders you have in Cloudinary, plus root ('')
-        folders_to_check = ["bollywood", "DHURANDHAR", ""]
+        # This searches your entire account for audio (video) OR raw files
+        result = cloudinary.search.expression("resource_type:video OR resource_type:raw").max_results(500).execute()
+        resources = result.get('resources', [])
         
-        for folder in folders_to_check:
-            # ADDED "type": "upload" here to fix the Cloudinary Error 400
-            options = {"resource_type": "video", "type": "upload", "max_results": 500}
-            if folder:
-                options["prefix"] = f"{folder}/"
-                
-            response = cloudinary.api.resources(**options)
-            resources = response.get('resources', [])
-            print(f"📦 Folder '{folder or 'Root'}': Found {len(resources)} items.")
-            
-            for res in resources:
-                public_id = res.get('public_id') 
-                if not public_id or 'cover' in public_id.lower():
-                    continue
+        print(f"📦 Cloudinary Search found {len(resources)} total files!")
+        
+        for res in resources:
+            public_id = res.get('public_id') 
+            if not public_id or 'cover' in public_id.lower():
+                continue
 
-                total_found += 1
-                parts = public_id.split('/')
-                folder_name = parts[0] if len(parts) > 1 else "Root"
+            total_found += 1
+            parts = public_id.split('/')
+            folder_name = parts[0] if len(parts) > 1 else "Root"
+            
+            # 1. Handle Playlist
+            playlist = db.session.query(Playlist).filter_by(name=folder_name).first()
+            if not playlist:
+                playlist = Playlist(name=folder_name, is_auto=True)
+                db.session.add(playlist)
+                db.session.commit()
                 
-                # 1. Handle Playlist
-                playlist = db.session.query(Playlist).filter_by(name=folder_name).first()
-                if not playlist:
-                    playlist = Playlist(name=folder_name, is_auto=True)
-                    db.session.add(playlist)
-                    db.session.commit()
-                    
-                # 2. Handle Track
-                track = db.session.query(Track).filter_by(filename=public_id).first()
-                if not track:
-                    track = Track(
-                        filename=public_id,
-                        plays=0, 
-                        rating=0, 
-                        bitrate="Cloud Stream", 
-                        sample_rate="Auto"
-                    )
-                    db.session.add(track)
-                    db.session.commit()
-                    
-                # 3. Link Track
-                if track not in playlist.tracks:
-                    playlist.tracks.append(track)
-                    db.session.commit()
-                    
+            # 2. Handle Track
+            track = db.session.query(Track).filter_by(filename=public_id).first()
+            if not track:
+                track = Track(
+                    filename=public_id,
+                    plays=0, 
+                    rating=0, 
+                    bitrate="Cloud Stream", 
+                    sample_rate="Auto"
+                )
+                db.session.add(track)
+                db.session.commit()
+                
+            # 3. Link Track
+            if track not in playlist.tracks:
+                playlist.tracks.append(track)
+                db.session.commit()
+                
         print(f"✅ Sync complete! Added {total_found} total tracks to database.")
     except Exception as e:
         print(f"❌ Cloudinary sync failed: {e}")
