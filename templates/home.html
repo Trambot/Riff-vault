@@ -11,66 +11,67 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
-  <style>
-    @media (max-width: 768px) {
-      .desktop-toggle-btn {
-        display: none !important;
-      }
-    }
-  </style>
 </head>
 
 <body id="dynamic-body">
   <div id="dynamic-overlay"></div>
   <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar()"></div>
 
-  <div class="app-layout">
-    <!-- 1. LIQUID GLASS SIDEBAR -->
-    <aside class="app-sidebar glass-panel" id="app-sidebar">
-      <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px;">
-        <button class="glass-btn small-btn desktop-toggle-btn"
-          onclick="document.getElementById('app-sidebar').classList.toggle('collapsed')"
-          style="padding: 6px; display: flex; align-items: center; justify-content: center;" title="Toggle Sidebar">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
-        <button onclick="toggleSidebar()" class="mobile-sidebar-toggle" style="border: none; padding: 0;">✕</button>
-      </div>
+  <!-- GLOBAL TOP BAR -->
+  <header class="global-top-bar glass-panel">
+    <!-- Left side matches Sidebar Width -->
+    <div class="top-bar-left">
+      <button class="menu-toggle-btn" onclick="handleMenuToggle()" title="Toggle Sidebar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <h1 class="top-title-text" style="margin: 0; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px;">{{ app_name }}</h1>
+      <canvas id="header-visualizer" width="100" height="20" style="margin-top: 4px;"></canvas>
+    </div>
 
-      <div class="playlist-pills" style="margin-top: 10px;">
+    <!-- Right side matches Content Width -->
+    <div class="top-bar-right">
+      <div class="search-form" style="position:relative; width: 100%; max-width: 900px; margin: 0 auto;">
+        <div class="search-input-wrapper" style="position:relative; display:flex; align-items:center;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="position:absolute; left:14px; opacity:0.5;">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="text" id="live-search" placeholder="Search tracks instantly..." class="glass-input" style="padding-left:38px; width:100%; box-sizing: border-box; border: none; background: rgba(255,255,255,0.08); height: 42px; border-radius: 20px;">
+        </div>
+        <div id="search-results-dropdown" class="search-results-dropdown"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT SPLIT (Sidebar + Tracks + Lyrics Panel) -->
+  <div class="app-layout">
+    
+    <!-- 1. SIDEBAR -->
+    <aside class="app-sidebar glass-panel" id="app-sidebar">
+      <div class="playlist-pills">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top:0; margin-bottom: 12px;">
           <h3 class="section-title" style="margin: 0;">Library</h3>
-          <button onclick="triggerCloudSync(this)" class="glass-btn small-btn" style="padding: 4px 8px; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;" title="Sync Cloudinary">
+          <button onclick="triggerCloudSync(this)" class="glass-btn small-btn sync-btn" style="padding: 4px 8px; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;" title="Sync Cloudinary">
             <svg id="sync-spinner" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-10.02l5.25 5.25"/></svg>
-            Sync
+            <span class="sync-text">Sync</span>
           </button>
         </div>
 
-        <!-- ALL TRACKS -->
-        <a href="#" class="playlist-pill active" onclick="loadPlaylistView('all', 'All Vault Tracks', this)"
-          style="display: flex; align-items: center; gap: 8px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            opacity="0.8">
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-          </svg>
+        <a href="#" class="playlist-pill active" onclick="loadPlaylistView('all', 'All Vault Tracks', this)" style="display: flex; align-items: center; gap: 8px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.8"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
           All Tracks
         </a>
 
-        <!-- Sidebar Playlist List -->
         {% for pl in playlists %}
         <div class="playlist-group">
-          <a href="#" class="playlist-pill" style="flex-grow: 1; display: flex; align-items: center; gap: 8px;"
-            onclick="loadPlaylistView({{ pl.id }}, '{{ pl.name }}', this)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-              opacity="0.8">
-              <path d="M9 18V5l12-2v13"></path>
-              <circle cx="6" cy="18" r="3"></circle>
-              <circle cx="18" cy="16" r="3"></circle>
-            </svg>
+          <a href="#" class="playlist-pill" style="flex-grow: 1; display: flex; align-items: center; gap: 8px;" onclick="loadPlaylistView({{ pl.id }}, '{{ pl.name }}', this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.8"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
             {{ pl.name }}
           </a>
           <button type="button" class="delete-btn" onclick="deletePlaylistAjax({{ pl.id }}, this)">✕</button>
@@ -78,73 +79,24 @@
         {% endfor %}
       </div>
 
-      <!-- ZERO-REFRESH PLAYLIST CREATOR -->
-      <div class="create-playlist-form" style="margin-top: 15px; display: flex; gap:8px;">
-        <input type="text" id="new-playlist-input" placeholder="New Playlist..." class="glass-input small-input"
-          style="flex-grow: 1;">
-        <button type="button" onclick="createPlaylistAjax()" class="glass-btn small-btn"
-          style="display: flex; align-items: center; justify-content: center;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
+      <div class="create-playlist-form" style="margin-top: auto; display: flex; gap:8px;">
+        <input type="text" id="new-playlist-input" placeholder="New Playlist..." class="glass-input small-input" style="flex-grow: 1;">
+        <button type="button" onclick="createPlaylistAjax()" class="glass-btn small-btn" style="display: flex; align-items: center; justify-content: center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
       </div>
     </aside>
 
-    <!-- 2. MAIN CONTENT AREA -->
+    <!-- 2. TRACKS COLUMN -->
     <main class="main-content-area">
-      <div class="sticky-header-wrapper">
-        <header class="app-header">
-          <!-- Top Row: Clean Menu & Title + Visualizer (All aligned Left) -->
-          <div class="header-flex" style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; width: 100%;">
-            
-            <button class="mobile-sidebar-toggle" onclick="toggleSidebar()">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </svg>
-            </button>
-            
-            <div class="header-brand-group" style="display: flex; align-items: center; gap: 12px;">
-              <h1 style="margin: 0; font-size: 1.7rem; font-weight: 700; letter-spacing: -0.5px;">{{ app_name }}</h1>
-              <canvas id="header-visualizer" width="120" height="20" style="margin-top: 4px;"></canvas>
-            </div>
-          </div>
-
-          <!-- Bottom Row: Sleek Search Bar -->
-          <div class="search-form" style="position:relative; width: 100%;">
-            <div class="search-input-wrapper" style="position:relative; display:flex; align-items:center;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                style="position:absolute; left:14px; opacity:0.5;">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input type="text" id="live-search" placeholder="Search tracks instantly..." class="glass-input"
-                style="padding-left:38px; width:100%; box-sizing: border-box; border: none; background: rgba(255,255,255,0.08); height: 42px; border-radius: 20px;">
-            </div>
-            <div id="search-results-dropdown" class="search-results-dropdown"></div>
-          </div>
-        </header>
-      </div>
-      
-      <!-- CENTER COLUMN WRAPPER (This constrains and centers the tracks perfectly) -->
       <div class="center-column">
-        <!-- ACTIVE PLAYLIST / VAULT TRACKS -->
         <h3 id="current-view-title" class="section-title">All Vault Tracks</h3>
 
         <div class="vertical-track-list" id="primary-track-list">
           {% for track in tracks %}
-          <!-- DATA-PLAYLISTS injected so JS knows what to hide/show seamlessly -->
-          <div class="track-item track-row glass-panel" data-url="/stream/{{ track.filename }}"
-            data-name="{{ track.filename }}" data-id="{{ track.id }}"
-            data-playlists="{{ track.playlists | map(attribute='id') | list | tojson if track.playlists else '[]' }}"
-            onclick="playFromButton(this)">
-
+          <div class="track-item track-row glass-panel" data-url="/stream/{{ track.filename }}" data-name="{{ track.filename }}" data-id="{{ track.id }}" data-playlists="{{ track.playlists | map(attribute='id') | list | tojson if track.playlists else '[]' }}" onclick="playFromButton(this)">
             <div class="track-left-side">
-              <img src="/cover/{{ track.filename }}" class="list-cover" style="object-fit: cover;" loading="lazy"
-                crossorigin="anonymous">
+              <img src="/cover/{{ track.filename }}" class="list-cover" style="object-fit: cover;" loading="lazy" crossorigin="anonymous">
               <div class="track-details">
                 <strong id="track-title-{{ track.id }}">{{ track.filename.split('/')[-1].replace('_', ' ').replace('.flac', '').replace('.mp3', '') }}</strong>
                 <script>
@@ -162,105 +114,86 @@
                     }
                   })();
                 </script>
-                <div class="track-stats">Plays: <span id="plays-{{track.id}}">{{ track.plays }}</span> • Cloud Stream
-                </div>
+                <div class="track-stats">Plays: <span id="plays-{{track.id}}">{{ track.plays }}</span> • Cloud Stream</div>
               </div>
             </div>
 
-            <!-- Buttons injected by JS dynamically based on active view -->
             <div class="track-right-side dynamic-buttons" onclick="event.stopPropagation();">
-              <button type="button" class="glass-btn small-btn mini-btn"
-                onclick="addToQueue(this, event)">Queue</button>
+              <button type="button" class="glass-btn small-btn mini-btn" onclick="addToQueue(this, event)">Queue</button>
             </div>
           </div>
           {% endfor %}
         </div>
 
-        <!-- ADD MISSING TRACKS SECTION -->
         <div id="missing-tracks-section" style="display: none;">
           <h3 class="section-title" style="margin-top: 30px; opacity: 0.7;">Add Missing Tracks</h3>
-          <div class="vertical-track-list" id="missing-track-list" style="opacity: 0.85;">
-            <!-- JS clones un-added tracks here automatically -->
-          </div>
+          <div class="vertical-track-list" id="missing-track-list" style="opacity: 0.85;"></div>
         </div>
-      </div> <!-- End of center-column -->
-
-      <div style="height: 140px;"></div>
+      </div>
     </main>
+
+    <!-- 3. RIGHT PANEL (Desktop Image/Lyrics OR Mobile Modal) -->
+    <div id="lyrics-modal-overlay" onclick="closeLyrics()"></div>
+    <aside class="right-panel glass-panel" id="right-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+        <h3 style="margin:0; font-size:1.1rem; font-weight: 700;">Now Playing</h3>
+        <button onclick="closeLyrics()" class="glass-btn small-btn right-panel-close" style="padding: 4px 8px;">✕</button>
+      </div>
+      
+      <!-- Big Album Art -->
+      <img id="rp-cover" class="right-panel-cover" src="" crossorigin="anonymous">
+      <div id="rp-fallback" class="right-panel-fallback">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+      </div>
+      
+      <!-- Track Details -->
+      <div style="text-align: center; margin-top: 12px; flex-shrink: 0;">
+        <div id="rp-title" style="font-weight: 700; font-size: 1.05rem; line-height: 1.3;">No track selected</div>
+        <a id="spotify-link" href="#" target="_blank" class="spotify-btn" style="display:none; margin-top: 12px; font-size: 0.85rem; padding: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.434-5.305-1.76-8.786-.963-.335.077-.67-.133-.746-.47-.077-.334.132-.67.47-.745 3.808-.87 7.076-.496 9.712 1.114.293.18.386.563.207.857zm1.146-2.553c-.227.37-.714.487-1.082.26-2.68-1.646-6.786-2.13-9.965-1.164-.406.122-.84-.106-.963-.51-.122-.406.106-.84.51-.963 3.65-1.11 8.356-.554 11.442 1.343.37.226.486.713.26 1.082zm.1-2.652c-3.19-1.89-8.45-2.063-11.48-1.144-.482.146-1.002-.128-1.148-.61-.146-.48.128-1.002.61-1.147 3.5-1.06 9.32-.857 13.01 1.328.428.254.57.818.315 1.245-.254.428-.818.57-1.246.315z" />
+          </svg> Open in Spotify
+        </a>
+      </div>
+      
+      <!-- Scrolling Lyrics -->
+      <div id="lyrics-content" style="flex-grow: 1; overflow-y: auto; text-align: center; margin-top: 16px; font-size: 0.95rem; line-height: 1.6; color: #ccc; white-space: pre-wrap; padding-right: 4px;">
+        Play a track to view lyrics.
+      </div>
+    </aside>
   </div>
 
-  <!-- FLOATING PLAYER BAR -->
-  <audio id="master-audio" crossorigin="anonymous"></audio>
-  <div id="premium-player" class="glass-panel">
-    <div class="player-left">
-      <img src="" class="album-art" id="player-cover" style="object-fit: cover; display: none;" crossorigin="anonymous">
-      <div class="album-art" id="player-cover-fallback">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 18V5l12-2v13" />
-          <circle cx="6" cy="18" r="3" />
-          <circle cx="18" cy="16" r="3" />
-        </svg>
+  <!-- PLAYER WRAPPER (Centers dynamically between sidebar and right panel) -->
+  <div class="player-wrapper">
+    <div id="premium-player" class="glass-panel">
+      <div class="player-left">
+        <img src="" class="album-art" id="player-cover" style="object-fit: cover; display: none;" crossorigin="anonymous">
+        <div class="album-art" id="player-cover-fallback">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+        </div>
+        <div class="track-info">
+          <div id="current-title">No track selected</div>
+          <div id="current-artist">Ready to play</div>
+        </div>
       </div>
-      <div class="track-info">
-        <div id="current-title">No track selected</div>
-        <div id="current-artist">Ready to play</div>
+      <div class="player-center">
+        <div class="playback-controls">
+          <button id="shuffle-btn" onclick="toggleShuffle()" title="Shuffle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 3 21 3 21 8" /><line x1="4" y1="20" x2="21" y2="3" /><polyline points="21 16 21 21 16 21" /><line x1="15" y1="15" x2="21" y2="21" /><line x1="4" y1="4" x2="9" y2="9" /></svg></button>
+          <button id="prev-btn" onclick="playPrev()" title="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="19 20 9 12 19 4 19 20" /><line x1="5" y1="19" x2="5" y2="5" /></svg></button>
+          <button id="play-pause-btn" onclick="togglePlay()" title="Play/Pause"><svg id="play-pause-svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg></button>
+          <button id="next-btn" onclick="playNext(true)" title="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 4 15 12 5 20 5 4" /><line x1="19" y1="5" x2="19" y2="19" /></svg></button>
+          <button id="lyrics-btn" onclick="showLyrics()" title="Lyrics & Spotify"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
+        </div>
+        <div class="progress-container">
+          <span id="current-time">0:00</span>
+          <input type="range" id="seek-bar" value="0" max="100">
+          <span id="total-time">0:00</span>
+        </div>
       </div>
-    </div>
-    <div class="player-center">
-      <div class="playback-controls">
-        <button id="shuffle-btn" onclick="toggleShuffle()" title="Shuffle"><svg width="16" height="16"
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="16 3 21 3 21 8" />
-            <line x1="4" y1="20" x2="21" y2="3" />
-            <polyline points="21 16 21 21 16 21" />
-            <line x1="15" y1="15" x2="21" y2="21" />
-            <line x1="4" y1="4" x2="9" y2="9" />
-          </svg></button>
-        <button id="prev-btn" onclick="playPrev()" title="Previous"><svg width="18" height="18" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2.5">
-            <polygon points="19 20 9 12 19 4 19 20" />
-            <line x1="5" y1="19" x2="5" y2="5" />
-          </svg></button>
-        <button id="play-pause-btn" onclick="togglePlay()" title="Play/Pause"><svg id="play-pause-svg" width="22"
-            height="22" viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="5 3 19 12 5 21 5 3" />
-          </svg></button>
-        <button id="next-btn" onclick="playNext(true)" title="Next"><svg width="18" height="18" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2.5">
-            <polygon points="5 4 15 12 5 20 5 4" />
-            <line x1="19" y1="5" x2="19" y2="19" />
-          </svg></button>
-        <button id="lyrics-btn" onclick="showLyrics()" title="Lyrics & Spotify"><svg width="18" height="18"
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          </svg></button>
-      </div>
-      <div class="progress-container">
-        <span id="current-time">0:00</span>
-        <input type="range" id="seek-bar" value="0" max="100">
-        <span id="total-time">0:00</span>
+      <div class="player-right">
+        <input type="range" id="volume-bar" min="0" max="1" step="0.01" value="1" oninput="changeVolume(this.value)">
       </div>
     </div>
-    <div class="player-right">
-      <input type="range" id="volume-bar" min="0" max="1" step="0.01" value="1" oninput="changeVolume(this.value)">
-    </div>
-  </div>
-
-  <!-- LYRICS MODAL -->
-  <div id="lyrics-modal-overlay" onclick="closeLyrics()"></div>
-  <div id="lyrics-modal" class="glass-panel">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h3 style="margin:0; font-size:1.2rem;">Track Info</h3>
-      <button onclick="closeLyrics()" class="glass-btn small-btn">✕</button>
-    </div>
-    <a id="spotify-link" href="#" target="_blank" class="spotify-btn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path
-          d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.434-5.305-1.76-8.786-.963-.335.077-.67-.133-.746-.47-.077-.334.132-.67.47-.745 3.808-.87 7.076-.496 9.712 1.114.293.18.386.563.207.857zm1.146-2.553c-.227.37-.714.487-1.082.26-2.68-1.646-6.786-2.13-9.965-1.164-.406.122-.84-.106-.963-.51-.122-.406.106-.84.51-.963 3.65-1.11 8.356-.554 11.442 1.343.37.226.486.713.26 1.082zm.1-2.652c-3.19-1.89-8.45-2.063-11.48-1.144-.482.146-1.002-.128-1.148-.61-.146-.48.128-1.002.61-1.147 3.5-1.06 9.32-.857 13.01 1.328.428.254.57.818.315 1.245-.254.428-.818.57-1.246.315z" />
-      </svg>
-      Open in Spotify
-    </a>
-    <div id="lyrics-content">No track playing.</div>
   </div>
 
   <script>
@@ -288,12 +221,16 @@
       }
     };
 
-    function toggleSidebar() {
-      document.getElementById('app-sidebar').classList.toggle('open');
-      document.getElementById('sidebar-backdrop').classList.toggle('active');
+    function handleMenuToggle() {
+      if (window.innerWidth <= 768) {
+        document.getElementById('app-sidebar').classList.toggle('open');
+        document.getElementById('sidebar-backdrop').classList.toggle('active');
+      } else {
+        document.body.classList.toggle('sidebar-collapsed');
+      }
     }
+    function toggleSidebar() { handleMenuToggle(); }
 
-    /* --- LIVE SEARCH DROPDOWN --- */
     const searchInput = document.getElementById('live-search');
     const searchDropdown = document.getElementById('search-results-dropdown');
 
@@ -330,7 +267,6 @@
       }
     });
 
-    /* --- AJAX PLAYLIST OPERATIONS --- */
     function createPlaylistAjax() {
       const input = document.getElementById('new-playlist-input');
       const name = input.value.trim();
@@ -389,7 +325,6 @@
       });
     }
 
-    /* --- THE MAGIC SPA VIEW SWITCHER (NO AUDIO INTERRUPTION) --- */
     function loadPlaylistView(playlistId, playlistName, pillElement) {
       if (pillElement) {
         document.querySelectorAll('.playlist-pill').forEach(p => p.classList.remove('active'));
@@ -492,18 +427,49 @@
       executePlay(playlist[currentTrackIndex]);
     }
 
+    /* --- THE NEW RIGHT PANEL INTEGRATION --- */
+    async function fetchLyricsForPanel(rawTitle) {
+      const content = document.getElementById('lyrics-content');
+      const spotifyLink = document.getElementById('spotify-link');
+      
+      content.innerText = 'Searching for lyrics...';
+      spotifyLink.href = `https://open.spotify.com/search/${encodeURIComponent(rawTitle)}/tracks`;
+      spotifyLink.style.display = 'inline-flex';
+
+      try {
+        let res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(rawTitle)}`);
+        let data = await res.json();
+        if (data && data.length > 0 && (data[0].plainLyrics || data[0].syncedLyrics)) {
+          content.innerText = data[0].plainLyrics || data[0].syncedLyrics;
+        } else {
+          content.innerText = 'No lyrics found for this track.';
+        }
+      } catch (e) {
+        content.innerText = 'Could not load lyrics. Try again later.';
+      }
+    }
+
     function executePlay(rowElement) {
       document.querySelectorAll('.track-item').forEach(el => el.classList.remove('playing'));
       rowElement.classList.add('playing');
 
       let rawTitle = rowElement.getAttribute('data-name').split('/').pop();
-      currentTitle.innerText = rawTitle.replace(/_/g, ' ').replace('.flac', '').replace('.mp3', '');
+      let cleanTitle = rawTitle.replace(/_/g, ' ').replace('.flac', '').replace('.mp3', '');
+      
+      currentTitle.innerText = cleanTitle;
 
       playerCover.src = "/cover/" + rowElement.getAttribute('data-name');
       playerCover.style.display = "block";
       document.getElementById('player-cover-fallback').style.display = "none";
+      
+      // Update Right Panel UI automatically!
+      document.getElementById('rp-title').innerText = cleanTitle;
+      document.getElementById('rp-cover').src = playerCover.src;
+      document.getElementById('rp-cover').style.display = 'block';
+      document.getElementById('rp-fallback').style.display = 'none';
+      fetchLyricsForPanel(cleanTitle);
 
-      updateMediaSession(currentTitle.innerText, playerCover.src);
+      updateMediaSession(cleanTitle, playerCover.src);
 
       masterAudio.src = rowElement.getAttribute('data-url');
       fetch(`/add_play/${rowElement.getAttribute('data-id')}`, { method: 'POST' }).then(() => {
@@ -584,34 +550,16 @@
       }
     }
 
-    function closeLyrics() {
-      document.getElementById('lyrics-modal').style.display = 'none';
-      document.getElementById('lyrics-modal-overlay').style.display = 'none';
-    }
-
-    async function showLyrics() {
-      if (!currentTitle || currentTitle.innerText === 'No track selected') return;
-      const modal = document.getElementById('lyrics-modal');
-      const overlay = document.getElementById('lyrics-modal-overlay');
-      const content = document.getElementById('lyrics-content');
-      const spotifyLink = document.getElementById('spotify-link');
-
-      modal.style.display = 'flex'; overlay.style.display = 'block';
-      content.innerText = 'Searching for lyrics...';
-      let rawTitle = currentTitle.innerText;
-      spotifyLink.href = `https://open.spotify.com/search/${encodeURIComponent(rawTitle)}/tracks`;
-
-      try {
-        let res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(rawTitle)}`);
-        let data = await res.json();
-        if (data && data.length > 0 && (data[0].plainLyrics || data[0].syncedLyrics)) {
-          content.innerText = data[0].plainLyrics || data[0].syncedLyrics;
-        } else {
-          content.innerText = 'No lyrics found for this track.';
-        }
-      } catch (e) {
-        content.innerText = 'Could not load lyrics. Try again later.';
+    /* Modals for Mobile only since Desktop has permanent panel */
+    function showLyrics() {
+      if (window.innerWidth <= 1024) {
+        document.getElementById('right-panel').classList.add('modal-active');
+        document.getElementById('lyrics-modal-overlay').style.display = 'block';
       }
+    }
+    function closeLyrics() {
+      document.getElementById('right-panel').classList.remove('modal-active');
+      document.getElementById('lyrics-modal-overlay').style.display = 'none';
     }
 
     function updateMediaSession(title, coverUrl) {
@@ -630,28 +578,27 @@
     masterAudio.addEventListener('pause', () => {
       if (masterAudio.currentTime < masterAudio.duration && !masterAudio.ended) { }
     });
+
     function triggerCloudSync(btnElement) {
       const spinner = document.getElementById('sync-spinner');
-      const originalText = btnElement.innerHTML;
       
-      // Make it spin and change text
       spinner.style.animation = "spin 1s linear infinite";
-      btnElement.innerHTML = spinner.outerHTML + " Syncing...";
+      btnElement.innerHTML = spinner.outerHTML + ' <span class="sync-text">Syncing...</span>';
       btnElement.style.pointerEvents = "none";
 
       fetch('/sync_ajax', { method: 'POST' })
         .then(res => res.json())
         .then(data => {
           if (data.success) {
-            btnElement.innerHTML = "Synced!";
+            btnElement.innerHTML = '<span class="sync-text">Synced!</span>';
             btnElement.style.borderColor = "var(--accent-color)";
-            setTimeout(() => location.reload(), 1000); // Quick refresh to load the new tracks
+            setTimeout(() => location.reload(), 1000); 
           } else {
-            btnElement.innerHTML = "Failed";
+            btnElement.innerHTML = '<span class="sync-text">Failed</span>';
           }
         })
         .catch(() => {
-          btnElement.innerHTML = "Error";
+          btnElement.innerHTML = '<span class="sync-text">Error</span>';
         });
     }
   </script>
