@@ -59,46 +59,68 @@ class SongRequest(db.Model):
     title = db.Column(db.String(200), nullable=False)
 
 def sync_library():
-    print("☁️ Running classic Cloudinary sync...")
+    print("☁️ Running dynamic multi-folder Cloudinary sync...")
     try:
-        response = cloudinary.api.resources(resource_type="video", max_results=500)
-        resources = response.get('resources', [])
-        print(f"📦 Found {len(resources)} total resources in Cloudinary.")
-        
-        for res in resources:
-            public_id = res.get('public_id') 
-            if not public_id or 'cover' in public_id.lower():
-                continue
+        total_found = 0
+        # 1. First, automatically fetch all folders in your Cloudinary account
+        folders_to_check = [""] # Start with root
+        try:
+            folder_response = cloudinary.api.sub_folders()
+            for f in folder_response.get('folders', []):
+                folders_to_check.append(f.get('name'))
+        except Exception as e:
+            print(f"⚠️ Could not fetch subfolders dynamically, falling back to root: {e}")
 
-            parts = public_id.split('/')
-            folder_name = parts[0] if len(parts) > 1 else "Root"
+        # Also explicitly include any known custom folders just in case
+        known_folders = ["bollywood", "DHURANDHAR", "New folder", "Test"]
+        for kf in known_folders:
+            if kf not in folders_to_check:
+                folders_to_check.append(kf)
+
+        # 2. Loop through every folder and grab its assets
+        for folder in folders_to_check:
+            options = {"resource_type": "video", "type": "upload", "max_results": 500}
+            if folder:
+                options["prefix"] = f"{folder}/"
+                
+            response = cloudinary.api.resources(**options)
+            resources = response.get('resources', [])
             
-            # 1. Handle Playlist
-            playlist = db.session.query(Playlist).filter_by(name=folder_name).first()
-            if not playlist:
-                playlist = Playlist(name=folder_name, is_auto=True)
-                db.session.add(playlist)
-                db.session.commit()
+            for res in resources:
+                public_id = res.get('public_id') 
+                if not public_id or 'cover' in public_id.lower():
+                    continue
+
+                total_found += 1
+                parts = public_id.split('/')
+                folder_name = parts[0] if len(parts) > 1 else "Root"
                 
-            # 2. Handle Track
-            track = db.session.query(Track).filter_by(filename=public_id).first()
-            if not track:
-                track = Track(
-                    filename=public_id,
-                    plays=0, 
-                    rating=0, 
-                    bitrate="Cloud Stream", 
-                    sample_rate="Auto"
-                )
-                db.session.add(track)
-                db.session.commit()
-                
-            # 3. Link Track
-            if track not in playlist.tracks:
-                playlist.tracks.append(track)
-                db.session.commit()
-                
-        print("✅ Cloudinary Sync complete!")
+                # Handle Playlist
+                playlist = db.session.query(Playlist).filter_by(name=folder_name).first()
+                if not playlist:
+                    playlist = Playlist(name=folder_name, is_auto=True)
+                    db.session.add(playlist)
+                    db.session.commit()
+                    
+                # Handle Track
+                track = db.session.query(Track).filter_by(filename=public_id).first()
+                if not track:
+                    track = Track(
+                        filename=public_id,
+                        plays=0, 
+                        rating=0, 
+                        bitrate="Cloud Stream", 
+                        sample_rate="Auto"
+                    )
+                    db.session.add(track)
+                    db.session.commit()
+                    
+                # Link Track
+                if track not in playlist.tracks:
+                    playlist.tracks.append(track)
+                    db.session.commit()
+                    
+        print(f"✅ Sync complete! Found {total_found} total tracks across all folders.")
     except Exception as e:
         print(f"❌ Cloudinary sync failed: {e}")
 
