@@ -11,12 +11,15 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
   <style>
     /* Hides the desktop collapse button when viewing on a phone */
     @media (max-width: 768px) {
-      .desktop-toggle-btn { display: none !important; }
+      .desktop-toggle-btn {
+        display: none !important;
+      }
     }
   </style>
 </head>
@@ -28,16 +31,18 @@
   <div class="app-layout">
     <!-- 1. LIQUID GLASS SIDEBAR -->
     <aside class="app-sidebar glass-panel" id="app-sidebar">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">{{ app_name }}</h2>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <!-- Desktop Collapse Button -->
-          <button class="glass-btn small-btn desktop-toggle-btn" onclick="document.getElementById('app-sidebar').classList.toggle('collapsed')" style="padding: 6px; display: flex; align-items: center; justify-content: center;" title="Toggle Sidebar">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-          <!-- Mobile Close Menu Button -->
-          <button onclick="toggleSidebar()" class="mobile-sidebar-toggle" style="border: none; padding: 0;">✕</button>
-        </div>
+      <!-- Sidebar Top: Just the Desktop Collapse Button -->
+      <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px;">
+        <!-- Desktop Collapse Button -->
+        <button class="glass-btn small-btn desktop-toggle-btn"
+          onclick="document.getElementById('app-sidebar').classList.toggle('collapsed')"
+          style="padding: 6px; display: flex; align-items: center; justify-content: center;" title="Toggle Sidebar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <!-- Mobile Close Menu Button -->
+        <button onclick="toggleSidebar()" class="mobile-sidebar-toggle" style="border: none; padding: 0;">✕</button>
       </div>
 
       <div class="playlist-pills" style="margin-top: 10px;">
@@ -46,7 +51,8 @@
         <!-- ALL TRACKS -->
         <a href="#" class="playlist-pill active" onclick="loadPlaylistView('all', 'All Vault Tracks', this)"
           style="display: flex; align-items: center; gap: 8px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.8">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            opacity="0.8">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
           </svg>
           All Tracks
@@ -57,7 +63,8 @@
         <div class="playlist-group">
           <a href="#" class="playlist-pill" style="flex-grow: 1; display: flex; align-items: center; gap: 8px;"
             onclick="loadPlaylistView({{ pl.id }}, '{{ pl.name }}', this)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.8">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              opacity="0.8">
               <path d="M9 18V5l12-2v13"></path>
               <circle cx="6" cy="18" r="3"></circle>
               <circle cx="18" cy="16" r="3"></circle>
@@ -73,8 +80,12 @@
       <div class="create-playlist-form" style="margin-top: 15px; display: flex; gap:8px;">
         <input type="text" id="new-playlist-input" placeholder="New Playlist..." class="glass-input small-input"
           style="flex-grow: 1;">
-        <button type="button" onclick="createPlaylistAjax()" class="glass-btn small-btn" style="display: flex; align-items: center; justify-content: center;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <button type="button" onclick="createPlaylistAjax()" class="glass-btn small-btn"
+          style="display: flex; align-items: center; justify-content: center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
         </button>
       </div>
     </aside>
@@ -83,19 +94,24 @@
     <main class="main-content-area">
       <div class="sticky-header-wrapper">
         <header class="app-header">
-          <!-- Top Row: Clean Menu Button and Visualizer (Duplicate Title Removed) -->
-          <div class="header-flex"
-            style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; width: 100%;">
-            <button class="mobile-sidebar-toggle" onclick="toggleSidebar()">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <!-- Top Row: Menu Button, Original Logo, and Visualizer -->
+          <div class="header-title-row" style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; width: 100%; flex-wrap: wrap;">
+            
+            <!-- Mobile Menu Toggle (Now with text so users know to click it) -->
+            <button class="mobile-sidebar-toggle" onclick="toggleSidebar()" style="display: flex; align-items: center; gap: 6px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>
               </svg>
+              <span class="mobile-menu-text" style="font-size: 0.9rem; font-weight: 600;">Library</span>
             </button>
-            <div style="flex-grow: 1; display: flex; justify-content: flex-end;">
-              <canvas id="header-visualizer" width="120" height="24"></canvas>
-            </div>
+            
+            <!-- Restored Original Main Title -->
+            <h1 style="margin: 0; font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px;">{{ app_name }}</h1>
+            
+            <!-- Restored Visualizer Position (Right next to the title) -->
+            <canvas id="header-visualizer" width="150" height="24" style="margin-top: 4px;"></canvas>
           </div>
 
           <!-- Bottom Row: Search Bar -->
@@ -129,7 +145,8 @@
             <img src="/cover/{{ track.filename }}" class="list-cover" style="object-fit: cover;" loading="lazy"
               crossorigin="anonymous">
             <div class="track-details">
-              <strong id="track-title-{{ track.id }}">{{ track.filename.split('/')[-1].replace('_', ' ').replace('.flac', '').replace('.mp3', '') }}</strong>
+              <strong id="track-title-{{ track.id }}">{{ track.filename.split('/')[-1].replace('_', '
+                ').replace('.flac', '').replace('.mp3', '') }}</strong>
               <script>
                 (function () {
                   let el = document.getElementById('track-title-{{ track.id }}');
@@ -321,7 +338,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name })
       }).then(res => res.json()).then(data => {
-        if (data.success) location.reload(); 
+        if (data.success) location.reload();
       });
     }
 
@@ -408,7 +425,7 @@
 
             let clone = track.cloneNode(true);
             clone.style.display = 'flex';
-            clone.classList.remove('playing'); 
+            clone.classList.remove('playing');
             clone.querySelector('.dynamic-buttons').innerHTML = `
               <button type="button" class="glass-btn small-btn mini-btn" style="color:#1ed760; border-color:rgba(30,215,96,0.3);" onclick="addTrackAjax(${trackId}, ${playlistId}, this)">+ Add</button>
             `;

@@ -171,6 +171,8 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
 @media (max-width: 768px) {
   body { background-attachment: scroll; } /* Stops iOS Safari white screen crash */
   .app-layout { flex-direction: column; display: block; }
+  .mobile-menu-text { display: inline-block; }
+  .mobile-sidebar-toggle { display: inline-flex; margin-right: 10px; }
   
   /* Force Sidebar to float OVER the screen, not push it */
   .app-sidebar { 
@@ -203,6 +205,8 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px;
   .playback-controls { width: 100%; display: flex; justify-content: space-around; margin-bottom: 8px; }
   .playback-controls button { margin: 0; }
   .player-right { display: none; }
+
+  .mobile-menu-text { display: none; }
 }
 
 /* LYRICS & SPOTIFY MODAL */
