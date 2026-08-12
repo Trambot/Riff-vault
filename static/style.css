@@ -18,7 +18,6 @@ body {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
   z-index: -2; pointer-events: none; transition: background 0.8s ease;
 }
-#visualizer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
 
 .app-container { max-width: 900px; margin: 0 auto; padding: 0 20px 30px 20px; }
 
@@ -30,7 +29,15 @@ body {
   -webkit-backdrop-filter: blur(12px);
 }
 .header-flex { display: flex; justify-content: space-between; align-items: flex-start; }
-.app-header h1 { font-size: 2rem; margin: 0 0 10px 0; font-weight: 700; letter-spacing: -0.5px; }
+
+.header-title-row { 
+  display: flex; 
+  align-items: center; 
+  gap: 15px; 
+  margin-bottom: 12px; 
+}
+.app-header h1 { font-size: 2rem; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
+#header-visualizer { opacity: 0.8; margin-top: 4px; display: none; }
 
 /* FLAT MODERN DARK PANELS */
 .glass-panel, .glass-btn, .glass-input {
@@ -55,8 +62,6 @@ body {
 .small-input { padding: 5px 8px; font-size: 0.75rem; width: 110px; } 
 .small-btn { padding: 5px 10px; font-size: 0.75rem; }
 
-.search-form { display: flex; gap: 8px; }
-
 .playlists-container { padding: 14px 18px; border-radius: 12px; margin-bottom: 16px; }
 .playlist-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .playlist-group { display: flex; align-items: center; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; overflow: hidden; }
@@ -67,7 +72,6 @@ body {
 .create-playlist-form { display: flex; gap: 8px; }
 
 .section-title { margin-top: 10px; margin-bottom: 12px; font-size: 1rem; font-weight: 600; opacity: 0.9; }
-.glow-text { text-shadow: none; }
 
 .vertical-track-list { display: flex; flex-direction: column; gap: 8px; }
 
@@ -81,7 +85,7 @@ body {
 .track-row.playing { background: rgba(255, 255, 255, 0.12); border-left: 3px solid var(--accent-color); }
 
 .track-left-side { display: flex; align-items: center; overflow: hidden; }
-.track-right-side { display: flex; align-items: center; gap: 8px; flex-shrink: 0;}
+.track-right-side { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .list-cover { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.05); border-radius: 6px; margin-right: 12px; flex-shrink: 0; }
 .track-details strong { font-size: 0.9rem; font-weight: 500; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
 .track-stats { font-size: 0.72rem; color: rgba(255, 255, 255, 0.45); margin-top: 2px; }
@@ -93,24 +97,13 @@ body {
 .track-row:hover .play-icon { opacity: 0.8; }
 .track-row.playing .play-icon { display: none; }
 
-.eq-anim { display: none; gap: 2px; align-items: flex-end; height: 14px; }
-.track-row.playing .eq-anim { display: flex; }
-.eq-bar { width: 3px; background: var(--accent-color); border-radius: 1px; animation: eq-bounce 0.7s infinite ease-in-out alternate; }
-.eq-2 { animation-delay: 0.2s; }
-.eq-3 { animation-delay: 0.4s; }
-
-@keyframes eq-bounce {
-  0% { height: 3px; }
-  100% { height: 14px; }
-}
-
 /* FLOATING BOTTOM PLAYER */
 #premium-player {
   position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
   width: calc(100% - 32px); max-width: 860px; height: 76px;
   border-radius: 16px; padding: 0 20px; box-sizing: border-box; z-index: 1000;
   display: flex; justify-content: space-between; align-items: center;
-  background: rgba(18, 18, 18, 0.92);
+  background: rgba(18, 18, 18, 0.95);
   border: 1px solid rgba(255,255,255,0.12); 
   transition: border-color 0.4s ease;
 }
@@ -134,33 +127,54 @@ input[type=range] { -webkit-appearance: none; background: rgba(255, 255, 255, 0.
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: white; border-radius: 50%; }
 #volume-bar { width: 60px; margin-left: 6px; }
 
-/* MOBILE RESPONSIVE DESIGN */
+/* MOBILE RESPONSIVE DESIGN (FIXES) */
 @media (max-width: 768px) {
-  #visualizer { display: none !important; }
-
   .sticky-header-wrapper { margin: 0 -10px 10px -10px; padding: 10px; }
   .app-container { padding: 0 10px 130px 10px; }
   
   .header-flex { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
-  .app-header h1 { font-size: 1.4rem; margin: 0; }
-  .search-form { width: 100%; }
+  .header-title-row { gap: 10px; margin-bottom: 10px; }
+  .app-header h1 { font-size: 1.5rem; margin: 0; }
+  #header-visualizer { width: 90px; height: 20px; }
 
+  /* Stack upload form correctly */
+  form.upload-form { 
+    flex-direction: column !important; 
+    align-items: stretch !important; 
+    gap: 8px;
+  }
+  form.upload-form input, 
+  form.upload-form button { 
+    width: 100% !important; 
+    box-sizing: border-box; 
+    margin: 0 !important;
+  }
+
+  /* Wrap track row buttons safely */
   .track-row { flex-wrap: wrap; padding: 10px; gap: 6px; }
   .track-left-side { width: 100%; }
-  .list-cover { width: 38px; height: 38px; margin-right: 10px; }
-  .track-details strong { font-size: 0.85rem; }
+  .list-cover { width: 42px; height: 42px; margin-right: 12px; }
+  .track-details strong { font-size: 0.9rem; }
   
-  .track-right-side { width: 100%; justify-content: flex-start; padding-left: 48px; box-sizing: border-box; gap: 6px; }
-  .mini-dropdown { max-width: 85px; padding: 4px 6px; font-size: 0.7rem; }
-  .mini-btn { padding: 4px 8px; font-size: 0.7rem; }
+  .track-right-side { 
+    width: 100%; 
+    justify-content: flex-start; 
+    padding-left: 54px; /* Align with text */
+    box-sizing: border-box; 
+    gap: 8px; 
+    flex-wrap: wrap; /* Lets buttons drop to new line if screen is tiny */
+  }
+  
+  .mini-dropdown { max-width: 100px; padding: 6px 8px; font-size: 0.75rem; }
+  .mini-btn { padding: 6px 12px; font-size: 0.75rem; }
   
   #premium-player { 
-    bottom: 10px; width: calc(100% - 16px); height: auto; 
-    padding: 10px 14px; flex-direction: column; gap: 6px; border-radius: 12px;
+    bottom: 10px; width: calc(100% - 20px); height: auto; 
+    padding: 10px 15px; flex-direction: column; gap: 8px; border-radius: 16px;
   }
   .player-left { width: 100%; }
-  .album-art { width: 36px; height: 36px; margin-right: 10px; } 
+  .album-art { width: 40px; height: 40px; margin-right: 12px; } 
   .player-center { width: 100%; }
-  .playback-controls button { margin: 0 10px; }
+  .playback-controls button { margin: 0 12px; }
   .player-right { display: none; }
 }

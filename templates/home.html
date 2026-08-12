@@ -19,19 +19,24 @@
 </head>
 
 <body id="dynamic-body">
-  <canvas id="visualizer"></canvas>
   <div id="dynamic-overlay"></div> 
 
   <div class="app-container">
     <div class="sticky-header-wrapper">
       <header class="app-header">
         <div class="header-flex">
-          <div>
-            <h1>{{ app_name }}</h1>
-            <div class="search-form">
+          <div style="width: 100%;">
+            <!-- TITLE & VISUALIZER ROW -->
+            <div class="header-title-row">
+              <h1 style="margin: 0; line-height: 1;">{{ app_name }}</h1>
+              <canvas id="header-visualizer" width="120" height="24"></canvas>
+            </div>
+            
+            <!-- LIVE SEARCH -->
+            <div class="search-form" style="display:flex; gap:8px; flex-grow:1; max-width: 100%;">
               <div class="search-input-wrapper" style="position:relative; display:flex; align-items:center; flex-grow:1;">
                 <svg class="input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="position:absolute; left:12px; opacity:0.6;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="live-search" placeholder="Filter tracks instantly..." class="glass-input" style="padding-left:34px; width:100%;">
+                <input type="text" id="live-search" placeholder="Filter tracks instantly..." class="glass-input" style="padding-left:34px; width:100%; box-sizing: border-box;">
               </div>
             </div>
           </div>
@@ -41,7 +46,7 @@
 
     <!-- PLAYLISTS -->
     <div class="playlists-container glass-panel">
-      <h3 style="margin-top: 0; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.3px;">Playlists</h3>
+      <h3 class="section-title">Playlists</h3>
       <div class="playlist-pills">
         <a href="/" class="playlist-pill {% if not current_playlist %}active{% endif %}">All Tracks</a>
         {% for pl in playlists %}
@@ -50,6 +55,7 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
               {{ pl.name }}
             </a>
+            <!-- Delete always visible -->
             <form action="/delete_playlist/{{ pl.id }}" method="POST" style="margin:0;">
                 <button type="submit" class="delete-btn" title="Delete Playlist">✕</button>
             </form>
@@ -64,11 +70,11 @@
 
     <!-- UPLOAD TRACK PORTAL -->
     <div class="playlists-container glass-panel">
-        <h3 style="margin-top: 0; font-size: 0.95rem; font-weight: 600; display:flex; align-items:center; gap:6px;">
+        <h3 class="section-title" style="display:flex; align-items:center; gap:6px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Upload Track
         </h3>
-        <form action="/upload" method="POST" enctype="multipart/form-data" class="create-playlist-form" style="margin-top: 10px;">
+        <form action="/upload" method="POST" enctype="multipart/form-data" class="create-playlist-form upload-form" style="margin-top: 10px;">
             <input type="file" name="audio_file" accept="audio/*" class="glass-input small-input" style="flex-grow: 1; padding: 4px;" required>
             <input type="text" name="folder_name" placeholder="Folder (e.g. Rock)" class="glass-input small-input" style="width: 130px;">
             <button type="submit" class="glass-btn small-btn">Push to Cloud</button>
@@ -76,7 +82,7 @@
     </div>
 
     <!-- ALL TRACKS -->
-    <h3 class="section-title glow-text">{% if current_playlist %}Playing: {{ current_playlist.name }}{% else %}Vault Tracks{% endif %}</h3>
+    <h3 class="section-title" style="margin-top: 20px;">{% if current_playlist %}Playing: {{ current_playlist.name }}{% else %}Vault Tracks{% endif %}</h3>
     <div class="vertical-track-list">
       {% for track in tracks %}
         <div class="track-item track-row glass-panel" 
@@ -122,11 +128,6 @@
                 <span class="play-icon">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 </span>
-                <div class="eq-anim">
-                    <div class="eq-bar eq-1"></div>
-                    <div class="eq-bar eq-2"></div>
-                    <div class="eq-bar eq-3"></div>
-                </div>
             </div>
           </div>
         </div>
@@ -187,6 +188,7 @@
     const premiumPlayer = document.getElementById('premium-player');
     const colorThief = new ColorThief();
 
+    // Theming dynamically from Cover
     playerCover.onload = function() {
         if (playerCover.src && !playerCover.src.includes('gif')) {
             setTimeout(() => {
@@ -194,12 +196,9 @@
                     const color = colorThief.getColor(playerCover);
                     const rgbStr = `${color[0]}, ${color[1]}, ${color[2]}`;
                     document.documentElement.style.setProperty('--accent-color', `rgb(${rgbStr})`);
-                    overlay.style.background = `radial-gradient(circle at 50% 100%, rgba(${rgbStr}, 0.2) 0%, rgba(0,0,0,0) 60%)`;
-                    premiumPlayer.style.backgroundColor = `rgba(18, 18, 18, 0.95)`;
-                    premiumPlayer.style.borderColor = `rgba(${rgbStr}, 0.3)`;
+                    overlay.style.background = `radial-gradient(circle at 50% 100%, rgba(${rgbStr}, 0.15) 0%, rgba(0,0,0,0) 60%)`;
                 } catch(e) {
                     document.documentElement.style.setProperty('--accent-color', `rgb(178, 120, 255)`);
-                    premiumPlayer.style.backgroundColor = `rgba(18, 18, 18, 0.95)`;
                 }
             }, 50);
         }
@@ -323,15 +322,11 @@
         playPauseSvg.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
       }
     }
-    
     function changeVolume(val) { masterAudio.volume = val; }
 
-    const canvas = document.getElementById('visualizer');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-
+    /* --- PREMIUM HEADER VISUALIZER --- */
+    const headerCanvas = document.getElementById('header-visualizer');
+    const hCtx = headerCanvas.getContext('2d');
     let audioContext, analyser, source, isVisualizerSetup = false;
 
     function setupVisualizer() {
@@ -339,43 +334,56 @@
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       audioContext = new AudioContext();
       analyser = audioContext.createAnalyser();
+      
       source = audioContext.createMediaElementSource(masterAudio);
       source.connect(analyser);
       analyser.connect(audioContext.destination);
-      analyser.fftSize = 256;
+      
+      analyser.fftSize = 128; 
       isVisualizerSetup = true;
-      drawVisualizer();
+      drawHeaderVisualizer();
     }
 
-    function drawVisualizer() {
-      requestAnimationFrame(drawVisualizer);
-      if (window.innerWidth <= 768) return; 
+    function drawHeaderVisualizer() {
+      requestAnimationFrame(drawHeaderVisualizer);
+
+      if (!masterAudio.paused && masterAudio.src) {
+        headerCanvas.style.display = 'block';
+        headerCanvas.style.opacity = '1';
+      } else {
+        headerCanvas.style.opacity = '0.3'; // Fades gently when paused
+      }
 
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
       analyser.getByteFrequencyData(dataArray);
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const baseRadius = 150;
+      hCtx.clearRect(0, 0, headerCanvas.width, headerCanvas.height);
+
+      const rootStyles = getComputedStyle(document.documentElement);
+      const accentColor = rootStyles.getPropertyValue('--accent-color').trim() || 'rgb(178, 120, 255)';
+
+      hCtx.strokeStyle = accentColor;
+      hCtx.lineWidth = 3;
+      hCtx.lineCap = 'round'; 
+
+      let x = 2; 
+      const step = 6; 
 
       for (let i = 0; i < bufferLength; i++) {
-        const barHeight = dataArray[i] * 0.8;
-        const rads = (Math.PI * 2) / bufferLength;
-        const angle = rads * i;
-        const xStart = centerX + Math.cos(angle) * baseRadius;
-        const yStart = centerY + Math.sin(angle) * baseRadius;
-        const xEnd = centerX + Math.cos(angle) * (baseRadius + barHeight);
-        const yEnd = centerY + Math.sin(angle) * (baseRadius + barHeight);
+        let barHeight = (dataArray[i] / 255) * headerCanvas.height * 1.5;
+        if (barHeight < 3) barHeight = 3; 
+        if (barHeight > headerCanvas.height - 2) barHeight = headerCanvas.height - 2;
 
-        ctx.strokeStyle = `rgba(178, 120, 255, ${dataArray[i] / 255 + 0.15})`;
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(xStart, yStart);
-        ctx.lineTo(xEnd, yEnd);
-        ctx.stroke();
+        const yCenter = headerCanvas.height / 2;
+
+        hCtx.beginPath();
+        hCtx.moveTo(x, yCenter - barHeight / 2);
+        hCtx.lineTo(x, yCenter + barHeight / 2);
+        hCtx.stroke();
+
+        x += step;
+        if (x > headerCanvas.width - 2) break; 
       }
     }
   </script>
