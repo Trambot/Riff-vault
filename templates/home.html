@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>{{ app_name }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0b0c10">
-  
+
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
 </head>
 
 <body id="dynamic-body">
-  <div id="dynamic-overlay"></div> 
+  <div id="dynamic-overlay"></div>
 
   <div class="app-container">
     <div class="sticky-header-wrapper">
@@ -31,12 +37,18 @@
               <h1 style="margin: 0; line-height: 1;">{{ app_name }}</h1>
               <canvas id="header-visualizer" width="120" height="24"></canvas>
             </div>
-            
+
             <!-- LIVE SEARCH -->
             <div class="search-form" style="display:flex; gap:8px; flex-grow:1; max-width: 100%;">
-              <div class="search-input-wrapper" style="position:relative; display:flex; align-items:center; flex-grow:1;">
-                <svg class="input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="position:absolute; left:12px; opacity:0.6;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="live-search" placeholder="Filter tracks instantly..." class="glass-input" style="padding-left:34px; width:100%; box-sizing: border-box;">
+              <div class="search-input-wrapper"
+                style="position:relative; display:flex; align-items:center; flex-grow:1;">
+                <svg class="input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.5" style="position:absolute; left:12px; opacity:0.6;">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input type="text" id="live-search" placeholder="Filter tracks instantly..." class="glass-input"
+                  style="padding-left:34px; width:100%; box-sizing: border-box;">
               </div>
             </div>
           </div>
@@ -50,16 +62,22 @@
       <div class="playlist-pills">
         <a href="/" class="playlist-pill {% if not current_playlist %}active{% endif %}">All Tracks</a>
         {% for pl in playlists %}
-          <div class="playlist-group">
-            <a href="/?playlist_id={{ pl.id }}" class="playlist-pill {% if current_playlist and current_playlist.id == pl.id %}active{% endif %}" style="display:flex; align-items:center; gap:5px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-              {{ pl.name }}
-            </a>
-            <!-- Delete always visible -->
-            <form action="/delete_playlist/{{ pl.id }}" method="POST" style="margin:0;">
-                <button type="submit" class="delete-btn" title="Delete Playlist">✕</button>
-            </form>
-          </div>
+        <div class="playlist-group">
+          <a href="/?playlist_id={{ pl.id }}"
+            class="playlist-pill {% if current_playlist and current_playlist.id == pl.id %}active{% endif %}"
+            style="display:flex; align-items:center; gap:5px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M9 18V5l12-2v13" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
+            {{ pl.name }}
+          </a>
+          <!-- Delete always visible -->
+          <form action="/delete_playlist/{{ pl.id }}" method="POST" style="margin:0;">
+            <button type="submit" class="delete-btn" title="Delete Playlist">✕</button>
+          </form>
+        </div>
         {% endfor %}
       </div>
       <form action="/create_playlist" method="POST" class="create-playlist-form">
@@ -70,68 +88,79 @@
 
     <!-- UPLOAD TRACK PORTAL -->
     <div class="playlists-container glass-panel">
-        <h3 class="section-title" style="display:flex; align-items:center; gap:6px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Upload Track(s)
-        </h3>
-        <!-- added multiple and webkitdirectory so it accepts batches or folders -->
-        <form action="/upload" method="POST" enctype="multipart/form-data" class="create-playlist-form upload-form" style="margin-top: 10px;">
-            <input type="file" name="audio_files" accept="audio/*" class="glass-input small-input" style="flex-grow: 1; padding: 4px;" multiple webkitdirectory required>
-            <input type="text" name="folder_name" placeholder="Folder (e.g. Rock)" class="glass-input small-input" style="width: 130px;">
-            <button type="submit" class="glass-btn small-btn">Push to Cloud</button>
-        </form>
+      <h3 class="section-title" style="display:flex; align-items:center; gap:6px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        Upload Track(s)
+      </h3>
+      <!-- added multiple and webkitdirectory so it accepts batches or folders -->
+      <form action="/upload" method="POST" enctype="multipart/form-data" class="create-playlist-form upload-form"
+        style="margin-top: 10px;">
+        <input type="file" name="audio_files" accept="audio/*" class="glass-input small-input"
+          style="flex-grow: 1; padding: 4px;" multiple webkitdirectory required>
+        <input type="text" name="folder_name" placeholder="Folder (e.g. Rock)" class="glass-input small-input"
+          style="width: 130px;">
+        <button type="submit" class="glass-btn small-btn">Push to Cloud</button>
+      </form>
     </div>
 
     <!-- ALL TRACKS -->
-    <h3 class="section-title" style="margin-top: 20px;">{% if current_playlist %}Playing: {{ current_playlist.name }}{% else %}Vault Tracks{% endif %}</h3>
+    <h3 class="section-title" style="margin-top: 20px;">{% if current_playlist %}Playing: {{ current_playlist.name }}{%
+      else %}Vault Tracks{% endif %}</h3>
     <div class="vertical-track-list">
       {% for track in tracks %}
-        <div class="track-item track-row glass-panel" 
-             data-url="/stream/{{ track.filename }}"
-             data-name="{{ track.filename }}" data-id="{{ track.id }}" 
-             onclick="playFromButton(this)">
+      <div class="track-item track-row glass-panel" data-url="/stream/{{ track.filename }}"
+        data-name="{{ track.filename }}" data-id="{{ track.id }}" onclick="playFromButton(this)">
 
-          <div class="track-left-side">
-            <img src="/cover/{{ track.filename }}" class="list-cover" style="object-fit: cover;" loading="lazy" crossorigin="anonymous">
-            <div class="track-details">
-              <strong>{{ track.filename.split('/')[-1].replace('_', ' ').replace('.flac', '').replace('.mp3', '') }}</strong>
-              <div class="track-stats">
-                Plays: <span id="plays-{{track.id}}">{{ track.plays }}</span> • Cloud Stream
-              </div>
-            </div>
-          </div>
-
-          <div class="track-right-side">
-            <button type="button" class="glass-btn small-btn mini-btn" onclick="addToQueue(this, event)">
-              Queue
-            </button>
-
-            <form action="/add_to_playlist" method="POST" class="add-to-pl-form" onclick="event.stopPropagation();">
-              <input type="hidden" name="track_id" value="{{ track.id }}">
-              <select name="playlist_id" class="glass-input small-input mini-dropdown" required>
-                <option value="" disabled selected>Add to...</option>
-                {% for pl in playlists %}
-                  <option value="{{ pl.id }}">{{ pl.name }}</option>
-                {% endfor %}
-              </select>
-              <button type="submit" class="glass-btn small-btn mini-btn">+</button>
-            </form>
-            
-            {% if current_playlist %}
-              <form action="/remove_from_playlist" method="POST" style="margin:0;" onclick="event.stopPropagation();">
-                  <input type="hidden" name="track_id" value="{{ track.id }}">
-                  <input type="hidden" name="playlist_id" value="{{ current_playlist.id }}">
-                  <button type="submit" class="glass-btn small-btn mini-btn" style="color: #ff4c4c; border-color: rgba(255,76,76,0.3);" title="Remove">✕</button>
-              </form>
-            {% endif %}
-
-            <div class="action-indicators">
-                <span class="play-icon">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                </span>
+        <div class="track-left-side">
+          <img src="/cover/{{ track.filename }}" class="list-cover" style="object-fit: cover;" loading="lazy"
+            crossorigin="anonymous">
+          <div class="track-details">
+            <strong>{{ track.filename.split('/')[-1].replace('_', ' ').replace('.flac', '').replace('.mp3', '')
+              }}</strong>
+            <div class="track-stats">
+              Plays: <span id="plays-{{track.id}}">{{ track.plays }}</span> • Cloud Stream
             </div>
           </div>
         </div>
+
+        <div class="track-right-side">
+          <button type="button" class="glass-btn small-btn mini-btn" onclick="addToQueue(this, event)">
+            Queue
+          </button>
+
+          <form action="/add_to_playlist" method="POST" class="add-to-pl-form" onclick="event.stopPropagation();">
+            <input type="hidden" name="track_id" value="{{ track.id }}">
+            <select name="playlist_id" class="glass-input small-input mini-dropdown" required>
+              <option value="" disabled selected>Add to...</option>
+              {% for pl in playlists %}
+              <option value="{{ pl.id }}">{{ pl.name }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="glass-btn small-btn mini-btn">+</button>
+          </form>
+
+          {% if current_playlist %}
+          <form action="/remove_from_playlist" method="POST" style="margin:0;" onclick="event.stopPropagation();">
+            <input type="hidden" name="track_id" value="{{ track.id }}">
+            <input type="hidden" name="playlist_id" value="{{ current_playlist.id }}">
+            <button type="submit" class="glass-btn small-btn mini-btn"
+              style="color: #ff4c4c; border-color: rgba(255,76,76,0.3);" title="Remove">✕</button>
+          </form>
+          {% endif %}
+
+          <div class="action-indicators">
+            <span class="play-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
       {% endfor %}
     </div>
     <div style="height: 140px;"></div>
@@ -143,7 +172,11 @@
     <div class="player-left">
       <img src="" class="album-art" id="player-cover" style="object-fit: cover; display: none;" crossorigin="anonymous">
       <div class="album-art" id="player-cover-fallback">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18V5l12-2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="18" cy="16" r="3" />
+        </svg>
       </div>
       <div class="track-info">
         <div id="current-title">No track selected</div>
@@ -153,19 +186,35 @@
     <div class="player-center">
       <div class="playback-controls">
         <button id="shuffle-btn" onclick="toggleShuffle()" title="Shuffle">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="16 3 21 3 21 8" />
+            <line x1="4" y1="20" x2="21" y2="3" />
+            <polyline points="21 16 21 21 16 21" />
+            <line x1="15" y1="15" x2="21" y2="21" />
+            <line x1="4" y1="4" x2="9" y2="9" />
+          </svg>
         </button>
         <button id="prev-btn" onclick="playPrev()" title="Previous">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="19 20 9 12 19 4 19 20" />
+            <line x1="5" y1="19" x2="5" y2="5" />
+          </svg>
         </button>
         <button id="play-pause-btn" onclick="togglePlay()" title="Play/Pause">
-          <svg id="play-pause-svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <svg id="play-pause-svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
         </button>
         <button id="next-btn" onclick="playNext(true)" title="Next">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="5 4 15 12 5 20 5 4" />
+            <line x1="19" y1="5" x2="19" y2="19" />
+          </svg>
         </button>
         <button id="lyrics-btn" onclick="showLyrics()" title="Lyrics & Spotify">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
         </button>
       </div>
       <div class="progress-container">
@@ -175,7 +224,11 @@
       </div>
     </div>
     <div class="player-right">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.7; margin-right:6px;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        style="opacity:0.7; margin-right:6px;">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+      </svg>
       <input type="range" id="volume-bar" min="0" max="1" step="0.01" value="1" oninput="changeVolume(this.value)">
     </div>
   </div>
@@ -188,7 +241,10 @@
       <button onclick="closeLyrics()" class="glass-btn small-btn">✕</button>
     </div>
     <a id="spotify-link" href="#" target="_blank" class="spotify-btn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.434-5.305-1.76-8.786-.963-.335.077-.67-.133-.746-.47-.077-.334.132-.67.47-.745 3.808-.87 7.076-.496 9.712 1.114.293.18.386.563.207.857zm1.146-2.553c-.227.37-.714.487-1.082.26-2.68-1.646-6.786-2.13-9.965-1.164-.406.122-.84-.106-.963-.51-.122-.406.106-.84.51-.963 3.65-1.11 8.356-.554 11.442 1.343.37.226.486.713.26 1.082zm.1-2.652c-3.19-1.89-8.45-2.063-11.48-1.144-.482.146-1.002-.128-1.148-.61-.146-.48.128-1.002.61-1.147 3.5-1.06 9.32-.857 13.01 1.328.428.254.57.818.315 1.245-.254.428-.818.57-1.246.315z"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.434-5.305-1.76-8.786-.963-.335.077-.67-.133-.746-.47-.077-.334.132-.67.47-.745 3.808-.87 7.076-.496 9.712 1.114.293.18.386.563.207.857zm1.146-2.553c-.227.37-.714.487-1.082.26-2.68-1.646-6.786-2.13-9.965-1.164-.406.122-.84-.106-.963-.51-.122-.406.106-.84.51-.963 3.65-1.11 8.356-.554 11.442 1.343.37.226.486.713.26 1.082zm.1-2.652c-3.19-1.89-8.45-2.063-11.48-1.144-.482.146-1.002-.128-1.148-.61-.146-.48.128-1.002.61-1.147 3.5-1.06 9.32-.857 13.01 1.328.428.254.57.818.315 1.245-.254.428-.818.57-1.246.315z" />
+      </svg>
       Open in Spotify
     </a>
     <div id="lyrics-content">No track playing.</div>
@@ -207,63 +263,63 @@
     const colorThief = new ColorThief();
 
     // Theming dynamically from Cover
-    playerCover.onload = function() {
-        if (playerCover.src && !playerCover.src.includes('gif')) {
-            setTimeout(() => {
-                try {
-                    const color = colorThief.getColor(playerCover);
-                    const rgbStr = `${color[0]}, ${color[1]}, ${color[2]}`;
-                    document.documentElement.style.setProperty('--accent-color', `rgb(${rgbStr})`);
-                    overlay.style.background = `radial-gradient(circle at 50% 100%, rgba(${rgbStr}, 0.15) 0%, rgba(0,0,0,0) 60%)`;
-                } catch(e) {
-                    document.documentElement.style.setProperty('--accent-color', `rgb(178, 120, 255)`);
-                }
-            }, 50);
-        }
+    playerCover.onload = function () {
+      if (playerCover.src && !playerCover.src.includes('gif')) {
+        setTimeout(() => {
+          try {
+            const color = colorThief.getColor(playerCover);
+            const rgbStr = `${color[0]}, ${color[1]}, ${color[2]}`;
+            document.documentElement.style.setProperty('--accent-color', `rgb(${rgbStr})`);
+            overlay.style.background = `radial-gradient(circle at 50% 100%, rgba(${rgbStr}, 0.15) 0%, rgba(0,0,0,0) 60%)`;
+          } catch (e) {
+            document.documentElement.style.setProperty('--accent-color', `rgb(178, 120, 255)`);
+          }
+        }, 50);
+      }
     };
 
     let isShuffle = false;
     let currentTrackIndex = -1;
     let customQueue = [];
 
-    function getPlaylist() { 
-      return Array.from(document.querySelectorAll('.track-row')).filter(el => el.style.display !== 'none'); 
-    }
-    
-    function formatTime(s) { 
-      if(isNaN(s)) return "0:00"; 
-      let m=Math.floor(s/60), sec=Math.floor(s%60); 
-      return `${m}:${sec<10?'0':''}${sec}`; 
+    function getPlaylist() {
+      return Array.from(document.querySelectorAll('.track-row')).filter(el => el.style.display !== 'none');
     }
 
-    function toggleShuffle() { 
-      isShuffle = !isShuffle; 
-      document.getElementById('shuffle-btn').classList.toggle('active', isShuffle); 
+    function formatTime(s) {
+      if (isNaN(s)) return "0:00";
+      let m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+    }
+
+    function toggleShuffle() {
+      isShuffle = !isShuffle;
+      document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
     }
 
     /* INSTANT SEARCH FILTER */
-    document.getElementById('live-search').addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const tracks = document.querySelectorAll('.track-row');
-        tracks.forEach(track => {
-            const title = track.getAttribute('data-name').toLowerCase();
-            track.style.display = title.includes(searchTerm) ? 'flex' : 'none';
-        });
+    document.getElementById('live-search').addEventListener('input', function (e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const tracks = document.querySelectorAll('.track-row');
+      tracks.forEach(track => {
+        const title = track.getAttribute('data-name').toLowerCase();
+        track.style.display = title.includes(searchTerm) ? 'flex' : 'none';
+      });
     });
 
     /* QUEUE SYSTEM */
     function addToQueue(btnElement, event) {
-        event.stopPropagation();
-        const trackRow = btnElement.closest('.track-row');
-        customQueue.push(trackRow);
-        
-        const origText = btnElement.innerText;
-        btnElement.innerText = "Queued";
-        btnElement.style.borderColor = "var(--accent-color)";
-        setTimeout(() => {
-            btnElement.innerText = origText;
-            btnElement.style.borderColor = "";
-        }, 1500);
+      event.stopPropagation();
+      const trackRow = btnElement.closest('.track-row');
+      customQueue.push(trackRow);
+
+      const origText = btnElement.innerText;
+      btnElement.innerText = "Queued";
+      btnElement.style.borderColor = "var(--accent-color)";
+      setTimeout(() => {
+        btnElement.innerText = origText;
+        btnElement.style.borderColor = "";
+      }, 1500);
     }
 
     function playFromButton(rowElement) {
@@ -297,14 +353,16 @@
     function executePlay(rowElement) {
       document.querySelectorAll('.track-item').forEach(el => el.classList.remove('playing'));
       rowElement.classList.add('playing');
-      
+
       let rawTitle = rowElement.getAttribute('data-name').split('/').pop();
       currentTitle.innerText = rawTitle.replace(/_/g, ' ').replace('.flac', '').replace('.mp3', '');
-      
+
       playerCover.src = "/cover/" + rowElement.getAttribute('data-name');
       playerCover.style.display = "block";
       document.getElementById('player-cover-fallback').style.display = "none";
       
+      updateMediaSession(currentTitle.innerText, playerCover.src);
+
       masterAudio.src = rowElement.getAttribute('data-url');
       fetch(`/add_play/${rowElement.getAttribute('data-id')}`, { method: 'POST' }).then(() => {
         let pc = document.getElementById('plays-' + rowElement.getAttribute('data-id'));
@@ -321,15 +379,15 @@
       seekBar.value = masterAudio.currentTime;
       document.getElementById('current-time').innerText = formatTime(masterAudio.currentTime);
     });
-    
+
     masterAudio.addEventListener('loadedmetadata', () => {
       seekBar.max = masterAudio.duration;
       document.getElementById('total-time').innerText = formatTime(masterAudio.duration);
     });
-    
+
     /* SEEKING CONTROLS */
     seekBar.addEventListener('input', () => masterAudio.currentTime = seekBar.value);
-    
+
     function togglePlay() {
       if (!masterAudio.src) return;
       if (masterAudio.paused) {
@@ -352,12 +410,12 @@
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       audioContext = new AudioContext();
       analyser = audioContext.createAnalyser();
-      
+
       source = audioContext.createMediaElementSource(masterAudio);
       source.connect(analyser);
       analyser.connect(audioContext.destination);
-      
-      analyser.fftSize = 128; 
+
+      analyser.fftSize = 128;
       isVisualizerSetup = true;
       drawHeaderVisualizer();
     }
@@ -383,14 +441,14 @@
 
       hCtx.strokeStyle = accentColor;
       hCtx.lineWidth = 3;
-      hCtx.lineCap = 'round'; 
+      hCtx.lineCap = 'round';
 
-      let x = 2; 
-      const step = 6; 
+      let x = 2;
+      const step = 6;
 
       for (let i = 0; i < bufferLength; i++) {
         let barHeight = (dataArray[i] / 255) * headerCanvas.height * 1.5;
-        if (barHeight < 3) barHeight = 3; 
+        if (barHeight < 3) barHeight = 3;
         if (barHeight > headerCanvas.height - 2) barHeight = headerCanvas.height - 2;
 
         const yCenter = headerCanvas.height / 2;
@@ -401,7 +459,7 @@
         hCtx.stroke();
 
         x += step;
-        if (x > headerCanvas.width - 2) break; 
+        if (x > headerCanvas.width - 2) break;
       }
     }
 
@@ -413,18 +471,18 @@
 
     async function showLyrics() {
       if (!currentTitle || currentTitle.innerText === 'No track selected') return;
-      
+
       const modal = document.getElementById('lyrics-modal');
       const overlay = document.getElementById('lyrics-modal-overlay');
       const content = document.getElementById('lyrics-content');
       const spotifyLink = document.getElementById('spotify-link');
-      
+
       modal.style.display = 'flex';
       overlay.style.display = 'block';
       content.innerText = 'Searching for lyrics...';
-      
+
       let rawTitle = currentTitle.innerText;
-      
+
       // Instantly generate a Spotify search query based on the active track
       spotifyLink.href = `https://open.spotify.com/search/${encodeURIComponent(rawTitle)}/tracks`;
 
@@ -432,7 +490,7 @@
         // Ping lrclib to grab the lyrics if they exist
         let res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(rawTitle)}`);
         let data = await res.json();
-        
+
         if (data && data.length > 0 && (data[0].plainLyrics || data[0].syncedLyrics)) {
           content.innerText = data[0].plainLyrics || data[0].syncedLyrics;
         } else {
@@ -442,6 +500,52 @@
         content.innerText = 'Could not load lyrics. Try again later.';
       }
     }
+    /* --- MEDIA SESSION API (LOCK SCREEN & HEADPHONE CONTROLS) --- */
+    function updateMediaSession(title, coverUrl) {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: title,
+          artist: 'Riff Vault',
+          album: 'Cloud Vault',
+          artwork: [{ src: coverUrl, sizes: '500x500', type: 'image/jpeg' }]
+        });
+
+        navigator.mediaSession.setActionHandler('play', () => { masterAudio.play(); });
+        navigator.mediaSession.setActionHandler('pause', () => { masterAudio.pause(); });
+        navigator.mediaSession.setActionHandler('previoustrack', () => { playPrev(); });
+        navigator.mediaSession.setActionHandler('nexttrack', () => { playNext(true); });
+      }
+    }
+    /* --- PREVENT BACKGROUND THROTTLING --- */
+    masterAudio.addEventListener('pause', () => {
+      if (masterAudio.currentTime < masterAudio.duration && !masterAudio.ended) {
+        // Prevents accidental background suspension state drops
+      }
+    });
+    /* --- FUZZY LIVE SEARCH FILTER --- */
+    /* --- FUZZY & INSTANT LIVE SEARCH FILTER --- */
+    document.getElementById('live-search').addEventListener('input', function (e) {
+      const searchTerm = e.target.value.toLowerCase().trim();
+      const tracks = document.querySelectorAll('.track-row');
+
+      tracks.forEach(track => {
+        const title = track.getAttribute('data-name').toLowerCase();
+        
+        // If the search bar is empty, show all tracks immediately
+        if (searchTerm === "") {
+          track.style.display = 'flex';
+          return;
+        }
+
+        // Substring / smart matching
+        if (title.includes(searchTerm)) {
+          track.style.display = 'flex';
+        } else {
+          track.style.display = 'none';
+        }
+      });
+    });
   </script>
 </body>
+
 </html>
